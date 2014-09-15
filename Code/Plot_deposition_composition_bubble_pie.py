@@ -50,35 +50,7 @@ m.imshow(background,origin='lower')#,extent=[ll[1],ll[0],ur[1],ur[0]])
 #### Display Shapefiles:
 m.readshapefile(GISdir+'fagaalugeo','fagaalugeo') ## Display coastline of watershed
 
-#for d in Tubes.iterrows():
-#    print d[0]
-#    data = d[1]
-#    X,Y = m(data['Lon'],data['Lat'])
-#    #print X,Y
-#    ## Labels
-#    plt.text(X-50,Y+30,str(d[0]),color='w')
-#    plt.text(X,Y-50,str(data['Total(g)'])+'(g)',size=10,color='w')
-#    
-#    org,carb,terr = data['Total(%organic)'],data['Total(%carb)'],data['Total(%terr)']
-#    ratios = [org/100.,carb/100.,terr/100.]
-#    #print ratios
-#    
-#    xy = []
-#    start = 0.
-#    for ratio in ratios:
-#        x = [0] + np.cos(np.linspace(2*math.pi*start,2*math.pi*(start+ratio), 30)).tolist()
-#        y = [0] + np.sin(np.linspace(2*math.pi*start,2*math.pi*(start+ratio), 30)).tolist()
-#        xy.append(zip(x,y))
-#        start += ratio
-# 
-#    for i, xyi in enumerate(xy):
-#        colors=['green','blue','red']
-#        ax.scatter(X,Y,marker=(xyi,0), s=data['Total(g)']*10, facecolor=colors[i])
-#        plt.draw()
-#plt.suptitle('Sediment accumulation in tubes-April 2014')        
-
-
-for d in SedPods.iterrows():
+for d in Tubes.iterrows():
     print d[0]
     data = d[1]
     X,Y = m(data['Lon'],data['Lat'])
@@ -101,9 +73,37 @@ for d in SedPods.iterrows():
  
     for i, xyi in enumerate(xy):
         colors=['green','blue','red']
-        ax.scatter(X,Y,marker=(xyi,0), s=data['Total(g)']*20, facecolor=colors[i])
+        ax.scatter(X,Y,marker=(xyi,0), s=data['Total(g)']*10, facecolor=colors[i])
         plt.draw()
-plt.suptitle('Sediment accumulation in SedPods-April 2014')      
+plt.suptitle('Sediment accumulation in tubes-April 2014')        
+
+
+#for d in SedPods.iterrows():
+#    print d[0]
+#    data = d[1]
+#    X,Y = m(data['Lon'],data['Lat'])
+#    #print X,Y
+#    ## Labels
+#    plt.text(X-50,Y+30,str(d[0]),color='w')
+#    plt.text(X,Y-50,str(data['Total(g)'])+'(g)',size=10,color='w')
+#    
+#    org,carb,terr = data['Total(%organic)'],data['Total(%carb)'],data['Total(%terr)']
+#    ratios = [org/100.,carb/100.,terr/100.]
+#    #print ratios
+#    
+#    xy = []
+#    start = 0.
+#    for ratio in ratios:
+#        x = [0] + np.cos(np.linspace(2*math.pi*start,2*math.pi*(start+ratio), 30)).tolist()
+#        y = [0] + np.sin(np.linspace(2*math.pi*start,2*math.pi*(start+ratio), 30)).tolist()
+#        xy.append(zip(x,y))
+#        start += ratio
+# 
+#    for i, xyi in enumerate(xy):
+#        colors=['green','blue','red']
+#        ax.scatter(X,Y,marker=(xyi,0), s=data['Total(g)']*20, facecolor=colors[i])
+#        plt.draw()
+#plt.suptitle('Sediment accumulation in SedPods-April 2014')      
 
 #### Colors legend
 labels=['%Organic','%Carbonate','%Terrigenous']
