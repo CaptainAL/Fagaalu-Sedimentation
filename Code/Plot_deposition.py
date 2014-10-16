@@ -17,6 +17,7 @@ from mpl_toolkits.basemap import Basemap
 import utm
 import shapefile ## from pyshp
 import datetime as dt
+plt.close('all')
 ## Set Pandas display options
 pd.set_option('display.large_repr', 'truncate')
 pd.set_option('display.max_rows', 15)
@@ -34,38 +35,53 @@ SedPods, SedTubes = pd.DataFrame(),pd.DataFrame()
 count = 0
 for sheet in XL.sheet_names:
     count +=1
-    Data = XL.parse(sheet,header=7,na_values=['NAN','N/A (disturbed)'],parse_cols='A:D,F:J')
+    Data = XL.parse(sheet,header=7,na_values=['NAN','N/A (disturbed)'],parse_cols='A:D,F:L')
     Data = Data.replace('NO SED',0)
     Data['Total(g)'] = Data['Mass Sand Fraction'] + Data['Mass Fine Fraction']
-    Data['Month'] = sheet
+    ## Get rid of negative values
+    Data['Total(g)']= Data['Total(g)'][Data['Total(g)']>=0]
+    Data['Mass Sand Fraction']= Data['Mass Sand Fraction'][Data['Mass Sand Fraction']>=0]
+    Data['Mass Fine Fraction']= Data['Mass Fine Fraction'][Data['Mass Fine Fraction']>=0]    
+    ## Convert to g/cm2/day
+    Data['Total(g)'] = Data['Total(g)']/Data['Area(cm2)']/Data['Days deployed:']
+    Data['Mass Sand Fraction'] = Data['Mass Sand Fraction']/Data['Area(cm2)']/Data['Days deployed:']
+    Data['Mass Fine Fraction'] = Data['Mass Fine Fraction']/Data['Area(cm2)']/Data['Days deployed:']
+    ## Round
+    round_num = 5
+    Data['Total(g)']=Data['Total(g)'].round(round_num)
+    Data['Mass Sand Fraction']=Data['Mass Sand Fraction'].round(round_num)
+    Data['Mass Fine Fraction']=Data['Mass Fine Fraction'].round(round_num)
     
+    ## Add Month
+    Data['Month'] = sheet
+    ## Categorize by Tubes and Pods
     Pods = Data[Data['Pod(P)/Tube(T)'].isin(['P1A','P2A','P3A','P1B','P2B','P3B','P1C','P2C','P3C'])]
     Tubes = Data[Data['Pod(P)/Tube(T)'].isin(['T1A','T2A','T3A','T1B','T2B','T3B','T1C','T2C','T3C'])]
-    
+    ## Add to All Samples
     SedPods = SedPods.append(Pods)
     SedTubes = SedTubes.append(Tubes)
 
-    ##################################################
-    ## Map Extents: Local, Island, Region
-    ll = [-14.294238,-170.683732] #ll = [-14.4,-170.8] #ll = [-20,-177]
-    ur = [-14.286362, -170.673260] #ur = [-14.23, -170.54] #ur = [-14,-170]
-    
-    ### Make Plot
-    fig, ax = plt.subplots(1)
-    m = Basemap(projection='merc', resolution='f',
-                   llcrnrlon=ll[1], llcrnrlat=ll[0],
-                   urcrnrlon=ur[1], urcrnrlat=ur[0],ax=ax)
-    #### Show background image from DriftersBackground.mxd
-    background = np.flipud(plt.imread(GISdir+'DrifterBackground.png'))
-    m.imshow(background,origin='lower')#,extent=[ll[1],ll[0],ur[1],ur[0]])
-    
-    #### Show Lat/Lon Grid               
-    #gMap.drawparallels(np.arange(ll[0],ur[0],.001),labels=[1,1,0,0])
-    #gMap.drawmeridians(np.arange(ll[1],ur[1],.001),labels=[0,0,0,1])
-    
-    #### Display Shapefiles:
-    m.readshapefile(GISdir+'fagaalugeo','fagaalugeo') ## Display coastline of watershed
-    
+#    ##################################################
+#    ## Map Extents: Local, Island, Region
+#    ll = [-14.294238,-170.683732] #ll = [-14.4,-170.8] #ll = [-20,-177]
+#    ur = [-14.286362, -170.673260] #ur = [-14.23, -170.54] #ur = [-14,-170]
+#    
+#    ### Make Plot
+#    fig, ax = plt.subplots(1)
+#    m = Basemap(projection='merc', resolution='f',
+#                   llcrnrlon=ll[1], llcrnrlat=ll[0],
+#                   urcrnrlon=ur[1], urcrnrlat=ur[0],ax=ax)
+#    #### Show background image from DriftersBackground.mxd
+#    background = np.flipud(plt.imread(GISdir+'DrifterBackground.png'))
+#    m.imshow(background,origin='lower')#,extent=[ll[1],ll[0],ur[1],ur[0]])
+#    
+#    #### Show Lat/Lon Grid               
+#    #gMap.drawparallels(np.arange(ll[0],ur[0],.001),labels=[1,1,0,0])
+#    #gMap.drawmeridians(np.arange(ll[1],ur[1],.001),labels=[0,0,0,1])
+#    
+#    #### Display Shapefiles:
+#    m.readshapefile(GISdir+'fagaalugeo','fagaalugeo') ## Display coastline of watershed
+#    
 #    for d in Tubes.iterrows():
 #        data = d[1]
 #        print sheet+' '+data['Pod(P)/Tube(T)']
@@ -98,7 +114,7 @@ for sheet in XL.sheet_names:
 #     
 #        for i, xyi in enumerate(xy):
 #            colors=['blue','red']
-#            ax.scatter(X,Y,marker=(xyi,0), s=data['Total(g)']*10, facecolor=colors[i])
+#            ax.scatter(X,Y,marker=(xyi,0), s=data['Total(g)']*10000, facecolor=colors[i])
 #            plt.draw()
 #    title = 'Sediment accumulation in Tubes: '+sheet
 #    plt.suptitle(title)
@@ -108,55 +124,123 @@ for sheet in XL.sheet_names:
 #    plt.legend()    
 #        
 #    plt.savefig(figdirTubes+str(count)+'-Tubes-'+sheet)        
+#    
+#    for d in Pods.iterrows():
+#        data = d[1]
+#        print sheet+' '+data['Pod(P)/Tube(T)']
+#        X,Y = m(data['Lon'],data['Lat'])
+#        #print X,Y
+#        
+#        ## Labels
+#        plt.text(X-50,Y+30,str(data['Pod(P)/Tube(T)']),color='w')
+#        plt.text(X,Y-50,str(data['Total(g)'])+'(g)',size=10,color='w')
+#        
+#        try:
+#            coarse = data['Mass Sand Fraction']/data['Total(g)']*100.
+#        except ZeroDivisionError:
+#            coarse = 0.0
+#        try:
+#            fine= data['Mass Fine Fraction']/data['Total(g)']*100.
+#        except ZeroDivisionError:
+#            fine = 0.0
+#
+#        ratios = [coarse/100.,fine/100.]
+#        #print ratios
+#        
+#        xy = []
+#        start = 0.
+#        for ratio in ratios:
+#            x = [0] + np.cos(np.linspace(2*math.pi*start,2*math.pi*(start+ratio), 30)).tolist()
+#            y = [0] + np.sin(np.linspace(2*math.pi*start,2*math.pi*(start+ratio), 30)).tolist()
+#            xy.append(zip(x,y))
+#            start += ratio
+#     
+#        for i, xyi in enumerate(xy):
+#            colors=['blue','red']
+#            ax.scatter(X,Y,marker=(xyi,0), s=data['Total(g)']*100000, facecolor=colors[i])
+#            plt.draw()
+#    title = 'Sediment accumulation in SedPods: '+sheet
+#    plt.suptitle(title)
+#    #### Colors legend
+#    labels=['coarse%','fine%']
+#    [ax.bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]  
+#    plt.legend()    
+#        
+#    plt.savefig(figdirPods+str(count)+'-Pods-'+sheet)  
+#    
+substrate = {'P3A':'coral','P3B':'coral','P3C':'coral','P2A':'mud','P2B':'coral','P2C':'coral','P1A':'sand','P1B':'sand','P1C':'coral',
+'T3A':'coral','T3B':'coral','T3C':'coral','T2A':'mud','T2B':'coral','T2C':'coral','T1A':'sand','T1B':'sand','T1C':'coral'}
+sub_colors={'coral':'blue','mud':'red','sand':'green'}
     
-    for d in Pods.iterrows():
-        data = d[1]
-        print sheet+' '+data['Pod(P)/Tube(T)']
-        X,Y = m(data['Lon'],data['Lat'])
-        #print X,Y
-        
-        ## Labels
-        plt.text(X-50,Y+30,str(data['Pod(P)/Tube(T)']),color='w')
-        plt.text(X,Y-50,str(data['Total(g)'])+'(g)',size=10,color='w')
-        
-        try:
-            coarse = data['Mass Sand Fraction']/data['Total(g)']*100.
-        except ZeroDivisionError:
-            coarse = 0.0
-        try:
-            fine= data['Mass Fine Fraction']/data['Total(g)']*100.
-        except ZeroDivisionError:
-            fine = 0.0
+## Plot each SedPod over time
+cols =SedPods['Pod(P)/Tube(T)'].value_counts().shape[0]
+fig, axes = plt.subplots(1, cols,sharey=True)
+labels=['coral','mud','sand']
+colors=['blue','red','green']
+[axes[x].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]  
+plt.legend()
 
-        ratios = [coarse/100.,fine/100.]
-        #print ratios
-        
-        xy = []
-        start = 0.
-        for ratio in ratios:
-            x = [0] + np.cos(np.linspace(2*math.pi*start,2*math.pi*(start+ratio), 30)).tolist()
-            y = [0] + np.sin(np.linspace(2*math.pi*start,2*math.pi*(start+ratio), 30)).tolist()
-            xy.append(zip(x,y))
-            start += ratio
-     
-        for i, xyi in enumerate(xy):
-            colors=['blue','red']
-            ax.scatter(X,Y,marker=(xyi,0), s=data['Total(g)']*10, facecolor=colors[i])
-            plt.draw()
-    title = 'Sediment accumulation in SedPods: '+sheet
-    plt.suptitle(title)
-    #### Colors legend
-    labels=['coarse%','fine%']
-    [ax.bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]  
-    plt.legend()    
-        
-    plt.savefig(figdirPods+str(count)+'-Pods-'+sheet)  
-#    
-#    
-#    
+for x, loc in enumerate(np.sort(SedPods['Pod(P)/Tube(T)'].value_counts().index.values)):
+    data = SedPods[(SedPods['Pod(P)/Tube(T)'] == loc)]
+    data['Total(g)'].plot(kind='bar',stacked=True,ax=axes[x],color=sub_colors[substrate[loc]])
+    axes[x].set_xticklabels(data['Month'].values)
+    axes[x].set_title(loc)
+    #axes[x].set_ylim(0,30)
+axes[0].set_ylabel('g/'+r'$cm^2$'+'/day')    
+plt.suptitle('Sediment Accumulation in SedPods over time',fontsize=16)
+plt.draw()
+plt.show()
     
+## Plot each SedTube over time
+cols =SedTubes['Pod(P)/Tube(T)'].value_counts().shape[0]
+fig, axes = plt.subplots(1, cols,sharey=True)
+labels=['coral','mud','sand']
+colors=['blue','red','green']
+[axes[x].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]  
+plt.legend()
+
+for x, loc in enumerate(np.sort(SedTubes['Pod(P)/Tube(T)'].value_counts().index.values)):
+    data = SedTubes[(SedTubes['Pod(P)/Tube(T)'] == loc)]
+    data['Total(g)'].plot(kind='bar',ax=axes[x],color=sub_colors[substrate[loc]])
+    axes[x].set_xticklabels(data['Month'].values)
+    axes[x].set_title(loc)
+axes[0].set_ylabel('g/'+r'$cm^2$'+'/day')    
+plt.suptitle('Sediment Accumulation in SedTubes over time',fontsize=16)
+plt.draw()
+plt.show()
+
+
+
+## Plot each SedPod over time
+cols =SedPods['Pod(P)/Tube(T)'].value_counts().shape[0]
+fig, axes = plt.subplots(1, cols,sharey=True)
+for x, loc in enumerate(np.sort(SedPods['Pod(P)/Tube(T)'].value_counts().index.values)):
+    data = SedPods[(SedPods['Pod(P)/Tube(T)'] == loc)]
+    data[['Mass Sand Fraction','Mass Fine Fraction']].plot(kind='bar',stacked=True,ax=axes[x],legend=False)
+    axes[x].set_xticklabels(data['Month'].values)
+    axes[x].set_title(loc)
     
+axes[0].set_ylabel('g/'+r'$cm^2$'+'/day')
+plt.legend()
+plt.suptitle('Sediment Accumulation in SedPods over time',fontsize=16)
+plt.draw()
+plt.show()
     
-    
-    
-    
+## Plot each SedTube over time
+cols =SedTubes['Pod(P)/Tube(T)'].value_counts().shape[0]
+fig, axes = plt.subplots(1, cols,sharey=True)
+
+for x, loc in enumerate(np.sort(SedTubes['Pod(P)/Tube(T)'].value_counts().index.values)):
+    data = SedTubes[(SedTubes['Pod(P)/Tube(T)'] == loc)]
+    data[['Mass Sand Fraction','Mass Fine Fraction']].plot(kind='bar',stacked=True,ax=axes[x],legend=False)
+    axes[x].set_xticklabels(data['Month'].values)
+    axes[x].set_title(loc)
+
+axes[0].set_ylabel('g/'+r'$cm^2$'+'/day')
+plt.legend()
+plt.suptitle('Sediment Accumulation in SedTubes over time',fontsize=16)
+plt.draw()
+plt.show()
+
+
+
