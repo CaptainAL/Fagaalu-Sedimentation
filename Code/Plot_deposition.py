@@ -42,10 +42,10 @@ for sheet in XL.sheet_names:
     Data['Total(g)']= Data['Total(g)'][Data['Total(g)']>=0]
     Data['Mass Sand Fraction']= Data['Mass Sand Fraction'][Data['Mass Sand Fraction']>=0]
     Data['Mass Fine Fraction']= Data['Mass Fine Fraction'][Data['Mass Fine Fraction']>=0]    
-    ## Convert to g/cm2/day
-    Data['Total(g)'] = Data['Total(g)']/Data['Area(cm2)']/Data['Days deployed:']
-    Data['Mass Sand Fraction'] = Data['Mass Sand Fraction']/Data['Area(cm2)']/Data['Days deployed:']
-    Data['Mass Fine Fraction'] = Data['Mass Fine Fraction']/Data['Area(cm2)']/Data['Days deployed:']
+    ## Convert to g/m2/day
+    Data['Total(g)'] = Data['Total(g)']/Data['Area(m2)']/Data['Days deployed:']
+    Data['Mass Sand Fraction'] = Data['Mass Sand Fraction']/Data['Area(m2)']/Data['Days deployed:']
+    Data['Mass Fine Fraction'] = Data['Mass Fine Fraction']/Data['Area(m2)']/Data['Days deployed:']
     ## Round
     round_num = 5
     Data['Total(g)']=Data['Total(g)'].round(round_num)
@@ -177,7 +177,7 @@ cols =SedPods['Pod(P)/Tube(T)'].value_counts().shape[0]
 fig, axes = plt.subplots(1, cols,sharey=True)
 labels=['coral','mud','sand']
 colors=['blue','red','green']
-[axes[x].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]  
+[axes[0].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]  
 plt.legend()
 
 for x, loc in enumerate(np.sort(SedPods['Pod(P)/Tube(T)'].value_counts().index.values)):
@@ -185,8 +185,14 @@ for x, loc in enumerate(np.sort(SedPods['Pod(P)/Tube(T)'].value_counts().index.v
     data['Total(g)'].plot(kind='bar',stacked=True,ax=axes[x],color=sub_colors[substrate[loc]])
     axes[x].set_xticklabels(data['Month'].values)
     axes[x].set_title(loc)
-    #axes[x].set_ylim(0,30)
-axes[0].set_ylabel('g/'+r'$cm^2$'+'/day')    
+    axes[x].axhline(y=100,ls='-',c='y')
+    axes[x].axhline(y=500,ls='-',c='r')
+    axes[x].axhline(y=data['Total(g)'].mean(),ls='-',c='b')
+    axes[x].annotate('%.1f'%data['Total(g)'].mean(),(1,data['Total(g)'].mean()),textcoords='data',size=9)
+    
+axes[0].set_ylabel('g/'+r'$m^2$'+'/day')   
+axes[0].set_ylim(0,35)
+
 plt.suptitle('Sediment Accumulation in SedPods over time',fontsize=16)
 plt.draw()
 plt.show()
@@ -204,13 +210,20 @@ for x, loc in enumerate(np.sort(SedTubes['Pod(P)/Tube(T)'].value_counts().index.
     data['Total(g)'].plot(kind='bar',ax=axes[x],color=sub_colors[substrate[loc]])
     axes[x].set_xticklabels(data['Month'].values)
     axes[x].set_title(loc)
-axes[0].set_ylabel('g/'+r'$cm^2$'+'/day')    
+    axes[x].axhline(y=100,ls='-',c='y')
+    axes[x].axhline(y=500,ls='-',c='r')
+    axes[x].axhline(y=data['Total(g)'].mean(),ls='-',c='b')
+    axes[x].annotate('%.1f'%data['Total(g)'].mean(),(1,data['Total(g)'].mean()+10),textcoords='data',size=9)
+    
+axes[0].set_ylabel('g/'+r'$m^2$'+'/day')    
+axes[0].set_ylim(0,650)
+
 plt.suptitle('Sediment Accumulation in SedTubes over time',fontsize=16)
 plt.draw()
 plt.show()
 
 
-
+#TODO Label water depth (WD=...)
 ## Plot each SedPod over time
 cols =SedPods['Pod(P)/Tube(T)'].value_counts().shape[0]
 fig, axes = plt.subplots(1, cols,sharey=True)
@@ -219,8 +232,11 @@ for x, loc in enumerate(np.sort(SedPods['Pod(P)/Tube(T)'].value_counts().index.v
     data[['Mass Sand Fraction','Mass Fine Fraction']].plot(kind='bar',stacked=True,ax=axes[x],legend=False)
     axes[x].set_xticklabels(data['Month'].values)
     axes[x].set_title(loc)
+    axes[x].axhline(y=100,ls='-',c='y')
+    axes[x].axhline(y=500,ls='-',c='r')
     
-axes[0].set_ylabel('g/'+r'$cm^2$'+'/day')
+axes[0].set_ylabel('g/'+r'$m^2$'+'/day')
+axes[0].set_ylim(0,35)
 plt.legend()
 plt.suptitle('Sediment Accumulation in SedPods over time',fontsize=16)
 plt.draw()
@@ -229,18 +245,47 @@ plt.show()
 ## Plot each SedTube over time
 cols =SedTubes['Pod(P)/Tube(T)'].value_counts().shape[0]
 fig, axes = plt.subplots(1, cols,sharey=True)
-
 for x, loc in enumerate(np.sort(SedTubes['Pod(P)/Tube(T)'].value_counts().index.values)):
+    ## Plot Coral health thresholds
+    axes[x].axhspan(0, 100, facecolor='g',alpha=.5)
+    axes[x].axhspan(100, 500, facecolor='y',alpha=.5)
+    axes[x].axhspan(300, 2000, facecolor='r',alpha=.5)    
+    ## Plot Data
     data = SedTubes[(SedTubes['Pod(P)/Tube(T)'] == loc)]
     data[['Mass Sand Fraction','Mass Fine Fraction']].plot(kind='bar',stacked=True,ax=axes[x],legend=False)
     axes[x].set_xticklabels(data['Month'].values)
     axes[x].set_title(loc)
-
-axes[0].set_ylabel('g/'+r'$cm^2$'+'/day')
+    ## Plot means
+    axes[x].axhline(y=data['Total(g)'].mean(),ls='-',c='b')
+    axes[x].annotate('%.1f'%data['Total(g)'].mean(),(1,data['Total(g)'].mean()+10),textcoords='data',size=9)
+## Label Coral health thresholds
+axes[0].annotate('stress recruits',(1,220),textcoords='data',rotation=90,size=9)
+axes[0].annotate('stress colonies',(1,420),textcoords='data',rotation=90,size=9)
+axes[0].annotate('lethal',(1,600),textcoords='data',rotation=90,size=9)    
+## Labels, limits
+axes[0].set_ylabel('g/'+r'$m^2$'+'/day')
+axes[0].set_ylim(0,650)
+## Legend, title
 plt.legend()
 plt.suptitle('Sediment Accumulation in SedTubes over time',fontsize=16)
 plt.draw()
 plt.show()
 
+## Plot each SedTube over time
+cols =SedTubes['Pod(P)/Tube(T)'].value_counts().shape[0]
+fig, axes = plt.subplots(1, cols,sharey=True)
+for x, loc in enumerate(np.sort(SedTubes['Pod(P)/Tube(T)'].value_counts().index.values)):
+    ## Plot Data
+    data = SedTubes[(SedTubes['Pod(P)/Tube(T)'] == loc)]
+    data['%fine'] = data['Mass Fine Fraction']/data['Total(g)']*100
+    axes[x].plot(range(1,6),data['%fine'],marker='o',ls='-',c='g')
+    axes[x].set_xticklabels(data['Month'].values,rotation='vertical')
+    axes[x].set_title(loc)
+axes[0].set_ylabel('% total mass fine fraction')
+## Legend, title
+plt.legend()
+plt.suptitle('Percentage fine fraction mass in SedTubes',fontsize=16)
+plt.draw()
+plt.show()
 
 
