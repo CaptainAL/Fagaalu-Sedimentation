@@ -177,7 +177,7 @@ cols =SedPods['Pod(P)/Tube(T)'].value_counts().shape[0]
 fig, axes = plt.subplots(1, cols,sharey=True)
 labels=['coral','mud','sand']
 colors=['blue','red','green']
-[axes[0].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]  
+[axes[x].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]  
 plt.legend()
 
 for x, loc in enumerate(np.sort(SedPods['Pod(P)/Tube(T)'].value_counts().index.values)):
