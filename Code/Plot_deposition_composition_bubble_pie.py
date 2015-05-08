@@ -243,8 +243,8 @@ def Terr_Sed_timeseries(data,max_y=40, show=True,save=False,filename=''):
     show_plot(show,fig)
     savefig(save,filename)
     return
-Terr_Sed_timeseries(SedPods,max_y=40,show=True,save=True,filename=rawfig+'SedPods-terrig and precip')
-Terr_Sed_timeseries(SedTubes,max_y=650,show=True,save=True,filename=rawfig+'SedTubes-terrig and precip')
+#Terr_Sed_timeseries(SedPods,max_y=40,show=True,save=True,filename=rawfig+'SedPods-terrig and precip')
+#Terr_Sed_timeseries(SedTubes,max_y=650,show=True,save=True,filename=rawfig+'SedTubes-terrig and precip')
 
 
 #### Plot each SedPod/SedTube over time
@@ -299,5 +299,60 @@ def Sed_Comp_timeseries(data,max_y=40, show=True,save=False,filename=''):
     show_plot(show,fig)
     savefig(save,filename)
     return
-Sed_Comp_timeseries(SedPods,max_y=40,show=True,save=True,filename=rawfig+'SedPods-composition and precip')
-Sed_Comp_timeseries(SedTubes,max_y=650,show=True,save=True,filename=rawfig+'SedTubes-composition and precip')
+#Sed_Comp_timeseries(SedPods,max_y=40,show=True,save=True,filename=rawfig+'SedPods-composition and precip')
+#Sed_Comp_timeseries(SedTubes,max_y=650,show=True,save=True,filename=rawfig+'SedTubes-composition and precip')
+
+#### Plot each SedPod/SedTube over time
+def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):    
+    cols =data['Pod(P)/Tube(T)'].value_counts().shape[0]
+    fig, axes = plt.subplots(2, 1,sharey=True,figsize=(8,6))
+
+    north_reef = ['1A','1B','1C','2A','2C']
+    south_reef = ['2B','3A','3B','3C']
+    if 'T1A' in data['Pod(P)/Tube(T)'].values:
+        north_reef = ['T'+x for x in north_reef] 
+        south_reef = ['T'+x for x in south_reef] 
+    if 'P1A' in data['Pod(P)/Tube(T)'].values:
+        north_reef = ['P'+x for x in north_reef] 
+        south_reef = ['P'+x for x in south_reef] 
+    
+    north_sed = data[data['Pod(P)/Tube(T)'].isin(north_reef)]
+    south_sed = data[data['Pod(P)/Tube(T)'].isin(south_reef)]
+
+    sediment_mean_by_month= pd.DataFrame()
+    ## Select Sed data
+    for mon in XL.sheet_names:
+        ## Select data corresponding to the site location e.g. P1A, T2B etc
+        north_mean = north_sed[north_sed['Month'] == mon]['Total(gm2d)'].mean() * north_sed[north_sed['Month'] == mon]['Total(%terr)'].mean()/100
+        south_mean = south_sed[south_sed['Month'] == mon]['Total(gm2d)'].mean() * south_sed[south_sed['Month'] == mon]['Total(%terr)'].mean()/100
+        precip = north_sed[north_sed['Month'] == mon]['Precip'].max()
+        
+        sediment_mean_by_month = sediment_mean_by_month.append(pd.DataFrame({'North terr':north_mean,'South terr':south_mean,'Precip':precip},index=[mon]))
+        
+    ## Plot data values
+    sediment_mean_by_month['North terr'].plot(kind='bar',stacked=True,ax=axes[0],color='r')
+    sediment_mean_by_month['South terr'].plot(kind='bar',stacked=True,ax=axes[1],color='r')
+    for ax in axes:    
+        ## Plot precip data
+        ax2=ax.twinx()
+        ax2.yaxis.set_ticks_position('right')
+        ax2.plot(ax.get_xticks(),sediment_mean_by_month['Precip'],ls='-',color='k')  
+        ax2.set_ylim(0,2000), ax2.set_ylabel('mm')
+        ax2.xaxis.grid(False), ax2.yaxis.grid(False)
+
+    
+    ## Label left axes
+    axes[0].set_ylabel('NORTHERN \n g/'+r'$m^2$'+'/day') 
+    axes[1].set_ylabel('SOUTHERN \n g/'+r'$m^2$'+'/day') 
+    axes[0].set_ylim(0,max_y)
+    axes[0].xaxis.set_visible(False)
+    axes[0].xaxis.grid(False),axes[1].xaxis.grid(False)
+    plt.tight_layout(pad=0.2)
+
+    plt.subplots_adjust(top=0.95)
+    show_plot(show,fig)
+    savefig(save,filename)
+    return
+Sed_timeseries_mean_NS(SedPods,max_y=40,show=True,save=True,filename=rawfig+'SedPods-monthly mean')
+Sed_timeseries_mean_NS(SedTubes,max_y=650,show=True,save=True,filename=rawfig+'SedTubes-monthly mean')
+

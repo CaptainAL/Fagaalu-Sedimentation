@@ -77,11 +77,11 @@ def letter_subplots(fig,x=0.1,y=0.95,vertical='top',horizontal='right',Color='k'
 XL =pd.ExcelFile(datadir+'CRCP Sediment Data Bulk Weight and Composition.xlsx')
 Precip = pd.DataFrame.from_csv(datadir+'Fagaalu_rain_gauge_FILLED.csv').resample('M',how='sum')
 
-
 SedPods, SedTubes = pd.DataFrame(),pd.DataFrame()
 count = 0
 for sheet in XL.sheet_names:
     count +=1
+    ## get start, end dates and add precip and Q
     sampleDates = XL.parse(sheet,parse_cols='A:B',index_col=1,parse_dates=True)[:2] 
     start, end = pd.to_datetime(sampleDates.index[0]), pd.to_datetime(sampleDates.index[1])
     precip_month = Precip[start:end].sum()[0]
@@ -107,6 +107,8 @@ for sheet in XL.sheet_names:
     
     ## Add Month
     Data['Month'] = sheet
+    Data['start'] =  start
+    Data['end'] = end
     ## Add Monthly precip
     Data['Precip'] = precip_month
     ## Categorize by Tubes and Pods
