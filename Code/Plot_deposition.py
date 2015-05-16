@@ -92,9 +92,9 @@ for sheet in XL.sheet_names:
     Data = Data.replace('N/A (disturbed)',np.NaN)
     Data['Total(g)'] = Data['Mass Sand Fraction'] + Data['Mass Fine Fraction']
     ## Get rid of negative values
-    Data['Total(g)']= Data['Total(g)'][Data['Total(g)']>=0]
-    Data['Mass Sand Fraction']= Data['Mass Sand Fraction'][Data['Mass Sand Fraction']>=0]
-    Data['Mass Fine Fraction']= Data['Mass Fine Fraction'][Data['Mass Fine Fraction']>=0]    
+    #Data['Total(g)']= Data['Total(g)'][Data['Total(g)']>=0]
+    #Data['Mass Sand Fraction']= Data['Mass Sand Fraction'][Data['Mass Sand Fraction']>=0]
+    #Data['Mass Fine Fraction']= Data['Mass Fine Fraction'][Data['Mass Fine Fraction']>=0]    
     ## Convert to g/m2/day
     Data['Total(gm2d)'] = Data['Total(g)']/Data['Area(m2)']/Data['Days deployed:']
     Data['Mass Sand Fraction'] = Data['Mass Sand Fraction']/Data['Area(m2)']/Data['Days deployed:']
@@ -172,8 +172,8 @@ def Sed_timeseries(data,max_y=40, show=True,save=False,filename=''):
     show_plot(show,fig)
     savefig(save,filename)
     return
-#Sed_timeseries(SedPods,max_y=40,show=True,save=True,filename=rawfig+'SedPods-bulkweight and precip')
-#Sed_timeseries(SedTubes,max_y=650,show=True,save=True,filename=rawfig+'SedTubes-bulkweight and precip')
+Sed_timeseries(SedPods,max_y=40,show=True,save=True,filename=rawfig+'SedPods-bulkweight and precip')
+Sed_timeseries(SedTubes,max_y=650,show=True,save=True,filename=rawfig+'SedTubes-bulkweight and precip')
 
 
 #### Plot each SedPod/SedTube over time, separating the Coarse/Fine fraction
@@ -320,8 +320,8 @@ def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):
     show_plot(show,fig)
     savefig(save,filename)
     return
-Sed_timeseries_mean_NS(SedPods,max_y=40,show=True,save=True,filename=rawfig+'SedPods-monthly mean')
-Sed_timeseries_mean_NS(SedTubes,max_y=650,show=True,save=True,filename=rawfig+'SedTubes-monthly mean')
+#Sed_timeseries_mean_NS(SedPods,max_y=40,show=True,save=True,filename=rawfig+'SedPods-monthly mean')
+#Sed_timeseries_mean_NS(SedTubes,max_y=650,show=True,save=True,filename=rawfig+'SedTubes-monthly mean')
 
 
 
