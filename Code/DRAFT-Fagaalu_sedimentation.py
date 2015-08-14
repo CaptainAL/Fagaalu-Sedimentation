@@ -139,6 +139,8 @@ document.add_paragraph("In February and March, 2012, total sediment accumulation
 
 document.add_paragraph("")
 
+The observed spatial flow pattern suggests increased sediment discharge from human disturbance is deflected over the northern reef where sediment stress on corals is increased relative to the southern reef. 
+
 #### STUDY AREA
 study_area_title = document.add_heading('Study Area',level=2)
 ## Study Area map

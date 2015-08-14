@@ -75,7 +75,7 @@ def letter_subplots(fig,x=0.1,y=0.95,vertical='top',horizontal='right',Color='k'
     
 # Open Spreadsheet of data
 XL =pd.ExcelFile(datadir+'CRCP Sediment Data Bulk Weight and Composition.xlsx')
-Precip = pd.DataFrame.from_csv(datadir+'Fagaalu_rain_gauge_FILLED.csv').resample('M',how='sum')
+Precip = pd.DataFrame.from_csv(datadir+'Fagaalu_rain_gauge.csv').resample('M',how='sum')
 
 SedPods, SedTubes = pd.DataFrame(),pd.DataFrame()
 count = 0
