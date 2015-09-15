@@ -258,7 +258,7 @@ def Sed_Comp_timeseries(data,max_y=40,plot_health_thresholds=False,show=True,sav
     labels=['organic','terrigenous','carbonate','No Data']
     colors=['green','red','blue','grey']
     bars=[axes[0,2].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]
-    lines= axes[0,2].plot(0,0,color='k',label='Precip(mm)')
+    lines= axes[0,2].plot(0,0,color='b',marker='s',label='Precip(mm)')
     handles, labels = axes[0,2].get_legend_handles_labels()
     ## Plot Sed data
     for x, loc in enumerate(np.sort(data['Pod(P)/Tube(T)'].value_counts().index.values)):
@@ -292,7 +292,7 @@ def Sed_Comp_timeseries(data,max_y=40,plot_health_thresholds=False,show=True,sav
         ## Plot precip data
         ax2=axes1[x].twinx()
         ax2.yaxis.set_ticks_position('right')
-        ax2.plot(axes1[x].get_xticks(),sed['Precip'],ls='-',marker='s',color='b')  
+        ax2.plot(axes1[x].get_xticks(),sed['Precip'],ls='-',marker='s',color='b',label='Precip(mm)')  
         ax2.set_ylim(0,2000), ax2.xaxis.set_visible(False),ax2.yaxis.set_visible(False)
         if x==2 or x==5 or x==8:
             ax2.yaxis.set_visible(True), ax2.set_ylabel('mm')
