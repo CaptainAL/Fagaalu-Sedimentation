@@ -324,5 +324,59 @@ def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):
 #Sed_timeseries_mean_NS(SedTubes,max_y=650,show=True,save=True,filename=rawfig+'SedTubes-monthly mean')
 
 
+SedPods['Total Terr'] = SedPods['Total(gm2d)'] * SedPods['Total(%terr)']
+SedTubes['Total Terr'] = SedTubes['Total(gm2d)'] * SedTubes['Total(%terr)']
+
+## Plot scatter plot Pods v Tubes
+months= SedPods[SedPods['Pod(P)/Tube(T)']=='P1A']['Month'].values
+data_value = 'Total Terr'
+## By Location
+
+### 1A-C NORTH SIDE
+OneA= pd.DataFrame({'SedPods Total(gm2d)':SedPods[SedPods['Pod(P)/Tube(T)']=='P1A'][data_value].values},index=months) ## Make dataframe of SedPod data at each location indexed by month
+OneA= OneA.join(pd.DataFrame({'SedTubes Total(gm2d)':SedTubes[SedTubes['Pod(P)/Tube(T)']=='T1A'][data_value].values},index=months))
+
+OneB= pd.DataFrame({'SedPods Total(gm2d)':SedPods[SedPods['Pod(P)/Tube(T)']=='P1B'][data_value].values},index=months)
+OneB= OneB.join(pd.DataFrame({'SedTubes Total(gm2d)':SedTubes[SedTubes['Pod(P)/Tube(T)']=='T1B'][data_value].values},index=months))
+
+OneC= pd.DataFrame({'SedPods Total(gm2d)':SedPods[SedPods['Pod(P)/Tube(T)']=='P1B'][data_value].values},index=months)
+OneC= OneC.join(pd.DataFrame({'SedTubes Total(gm2d)':SedTubes[SedTubes['Pod(P)/Tube(T)']=='T1B'][data_value].values},index=months))
+
+### 2A-C CENTRAL
+TwoA= pd.DataFrame({'SedPods Total(gm2d)':SedPods[SedPods['Pod(P)/Tube(T)']=='P2A'][data_value].values},index=months) ## Make dataframe of SedPod data at each location indexed by month
+TwoA= TwoA.join(pd.DataFrame({'SedTubes Total(gm2d)':SedTubes[SedTubes['Pod(P)/Tube(T)']=='T2A'][data_value].values},index=months))
+
+TwoB= pd.DataFrame({'SedPods Total(gm2d)':SedPods[SedPods['Pod(P)/Tube(T)']=='P2B'][data_value].values},index=months)
+TwoB= TwoB.join(pd.DataFrame({'SedTubes Total(gm2d)':SedTubes[SedTubes['Pod(P)/Tube(T)']=='T2B'][data_value].values},index=months))
+
+TwoC= pd.DataFrame({'SedPods Total(gm2d)':SedPods[SedPods['Pod(P)/Tube(T)']=='P2C'][data_value].values},index=months)
+TwoC= TwoC.join(pd.DataFrame({'SedTubes Total(gm2d)':SedTubes[SedTubes['Pod(P)/Tube(T)']=='T2C'][data_value].values},index=months))
+
+### 3A-C SOUTH SIDE
+ThreeA= pd.DataFrame({'SedPods Total(gm2d)':SedPods[SedPods['Pod(P)/Tube(T)']=='P3A'][data_value].values},index=months) ## Make dataframe of SedPod data at each location indexed by month
+ThreeA= ThreeA.join(pd.DataFrame({'SedTubes Total(gm2d)':SedTubes[SedTubes['Pod(P)/Tube(T)']=='T3A'][data_value].values},index=months))
+
+ThreeB= pd.DataFrame({'SedPods Total(gm2d)':SedPods[SedPods['Pod(P)/Tube(T)']=='P3B'][data_value].values},index=months)
+ThreeB= ThreeB.join(pd.DataFrame({'SedTubes Total(gm2d)':SedTubes[SedTubes['Pod(P)/Tube(T)']=='T3B'][data_value].values},index=months))
+
+ThreeC= pd.DataFrame({'SedPods Total(gm2d)':SedPods[SedPods['Pod(P)/Tube(T)']=='P3C'][data_value].values},index=months)
+ThreeC= ThreeC.join(pd.DataFrame({'SedTubes Total(gm2d)':SedTubes[SedTubes['Pod(P)/Tube(T)']=='T3C'][data_value].values},index=months))
 
 
+#### PLOTTING
+
+plt.scatter(OneA['SedPods Total(gm2d)'],OneA['SedTubes Total(gm2d)'],marker='s',c='r',label='1A')
+plt.scatter(OneB['SedPods Total(gm2d)'],OneB['SedTubes Total(gm2d)'],marker='s',c='y',label='1B')
+plt.scatter(OneC['SedPods Total(gm2d)'],OneC['SedTubes Total(gm2d)'],marker='s',c='g',label='1C')
+
+plt.scatter(TwoA['SedPods Total(gm2d)'],TwoA['SedTubes Total(gm2d)'],marker='o',c='r',label='2A')
+plt.scatter(TwoB['SedPods Total(gm2d)'],TwoB['SedTubes Total(gm2d)'],marker='o',c='y',label='2B')
+plt.scatter(TwoC['SedPods Total(gm2d)'],TwoC['SedTubes Total(gm2d)'],marker='o',c='g',label='2C')
+
+plt.scatter(ThreeA['SedPods Total(gm2d)'],ThreeA['SedTubes Total(gm2d)'],marker='v',c='r',label='3A')
+plt.scatter(ThreeB['SedPods Total(gm2d)'],ThreeB['SedTubes Total(gm2d)'],marker='v',c='y',label='3B')
+plt.scatter(ThreeC['SedPods Total(gm2d)'],ThreeC['SedTubes Total(gm2d)'],marker='v',c='g',label='3C')
+
+plt.legend()
+
+plt.xlabel('SedPods g/m2/d'), plt.ylabel('SedTubes g/m2/d')

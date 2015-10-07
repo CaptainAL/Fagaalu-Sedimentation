@@ -13,6 +13,8 @@ import matplotlib as mpl
 import math
 datadir = 'C:/Users/Alex/Documents/GitHub/Fagaalu-Sedimentation/Data/WW3_data/'
 
+SSY_data = pd.DataFrame.from_csv('C:/Users/Alex/Documents/GitHub/Fagaalu-Sedimentation/Data/Qmax-SSY from model.csv')
+
 
 datafile = datadir+'point_data.csv'
 
@@ -95,7 +97,7 @@ v2 *= data['Thgt[unit="meters"]'].values
 
 
 
-fig, ((Thgt, shgt, whgt, mean_ht)) = plt.subplots(4,1,sharex=False,figsize=(14,10))
+fig, ((Thgt, shgt, whgt, mean_ht, ssy)) = plt.subplots(5,1,sharex=False,figsize=(14,12))
 Thgt.tick_params(\
     axis='x',          # changes apply to the x-axis
     which='both',      # both major and minor ticks are affected
@@ -123,29 +125,35 @@ data['whgt[unit="meters"]'].plot(ax=whgt)
 whgt.set_ylabel('Wind Sig Wave ht (m)')
 
 mean_hts = pd.DataFrame()
-
+ssy_periods = pd.DataFrame()
 for ax in fig.axes[:-1]:
     for period in periods.iterrows():   
         name,start, end= period[0],period[1]['start'],period[1]['end']
         midtime = period[1]['start']+(period[1]['end']-period[1]['start'])//3
-        ax.axvline(start,ls='--',c='k')
-        ax.axvline(end,ls='--',c='k')
-        ax.text(start,5, name,fontsize=10)
-        ax.set_ylim(0,6)
+        #ax.axvline(start,ls='--',c='k')
+        #ax.axvline(end,ls='--',c='k')
+        #ax.text(start,5, name,fontsize=10)
+        #ax.set_ylim(0,6)
         
         mean_hts = mean_hts.append(pd.DataFrame({'mean_Thgt':data['1.5_Thgt[unit="meters"]'][start:end].sum()},index=[midtime]))
-
+        ssy_periods = ssy_periods.append(pd.DataFrame({'SSY_period':SSY_data['Qmax-SSY-predicted'][start:end].sum()},index=[midtime]))
+        
 mean_hts=mean_hts.drop_duplicates().reindex(data.index)
+ssy_periods=ssy_periods.drop_duplicates().reindex(data.index)
 
 mean_ht.plot_date(mean_hts.index,mean_hts['mean_Thgt'])
+ssy.plot_date(ssy_periods.index,ssy_periods['SSY_period'])
+
 #mean_ht.set_ylim(0.5,3)
 mean_ht.set_ylabel('Mean Sig Wave ht (m)')
 for period in periods.iterrows():   
         name,start, end= period[0],period[1]['start'],period[1]['end']
         midtime = period[1]['start']+(period[1]['end']-period[1]['start'])//3
-        mean_ht.axvline(start,ls='--',c='k')
-        mean_ht.axvline(end,ls='--',c='k')
-        mean_ht.text(start,2.5, name,fontsize=10)
+        ssy.axvline(start,ls='--',c='k')
+        ssy.axvline(end,ls='--',c='k')
+        ssy.text(start,2.5, name,fontsize=10)
+        
+        
     
 #plt.tight_layout()
 
