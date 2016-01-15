@@ -19,8 +19,8 @@ SSY_data = pd.DataFrame.from_csv('C:/Users/Alex/Documents/GitHub/Fagaalu-Sedimen
 datafile = datadir+'point_data.csv'
 
 data = pd.DataFrame.from_csv(datafile)
-data = data[dt.datetime(2014,3,5):dt.datetime(2015,4,10)]
-#data = data[dt.datetime(2014,2,15):dt.datetime(2014,2,25)]
+#data = data[dt.datetime(2014,3,5):dt.datetime(2015,4,10)]
+data = data[dt.datetime(2014,2,15):dt.datetime(2014,2,25)]
 
 periods_file  = datadir+'periods.csv'
 periods = pd.DataFrame.from_csv(periods_file)
@@ -93,7 +93,7 @@ u2, v2 = u/N, v/N
 u2 *= data['Thgt[unit="meters"]'].values
 v2 *= data['Thgt[unit="meters"]'].values
 
-#stick_plot(data.index,u2,v2,data['Tper[unit="seconds"]'].values,cmap=plt.cm.rainbow,norm=mpl.colors.Normalize(vmin=0,vmax=20),scale=40)
+stick_plot(data.index,u2,v2,data['Tper[unit="seconds"]'].values,cmap=plt.cm.rainbow,norm=mpl.colors.Normalize(vmin=0,vmax=20),scale=10)
 
 
 

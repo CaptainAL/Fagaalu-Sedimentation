@@ -73,54 +73,54 @@ def letter_subplots(fig,x=0.1,y=0.95,vertical='top',horizontal='right',Color='k'
     plt.draw()
     return 
     
-# Open Spreadsheet of data
-XL =pd.ExcelFile(datadir+'CRCP Sediment Data Bulk Weight and Composition.xlsx')
-Precip = pd.DataFrame.from_csv(datadir+'Fagaalu_rain_gauge.csv').resample('M',how='sum')
-
-SedPods, SedTubes = pd.DataFrame(),pd.DataFrame()
-count = 0
-for sheet in XL.sheet_names:
-    count +=1
-    ## get start, end dates and add precip and Q
-    sampleDates = XL.parse(sheet,parse_cols='A:B',index_col=1,parse_dates=True)[:2] 
-    start, end = pd.to_datetime(sampleDates.index[0]), pd.to_datetime(sampleDates.index[1])
-    precip_month = Precip[start:end].sum()[0]
-    print 'start: '+str(start)+' end: '+str(end)+' precip: '+"%.0f"%precip_month
-    
-    Data = XL.parse(sheet,header=7,na_values=['NAN','N/A (disturbed)'],parse_cols='A:D,F:L')
-    Data = Data.replace('NO SED',0)
-    Data = Data.replace('N/A (disturbed)',np.NaN)
-    Data['Total(g)'] = Data['Mass Sand Fraction'] + Data['Mass Fine Fraction']
-    ## Get rid of negative values
-    #Data['Total(g)']= Data['Total(g)'][Data['Total(g)']>=0]
-    #Data['Mass Sand Fraction']= Data['Mass Sand Fraction'][Data['Mass Sand Fraction']>=0]
-    #Data['Mass Fine Fraction']= Data['Mass Fine Fraction'][Data['Mass Fine Fraction']>=0]    
-    ## Convert to g/m2/day
-    Data['Total(gm2d)'] = Data['Total(g)']/Data['Area(m2)']/Data['Days deployed:']
-    Data['Mass Sand Fraction'] = Data['Mass Sand Fraction']/Data['Area(m2)']/Data['Days deployed:']
-    Data['Mass Fine Fraction'] = Data['Mass Fine Fraction']/Data['Area(m2)']/Data['Days deployed:']
-    ## Round
-    round_num = 5
-    Data['Total(gm2d)']=Data['Total(gm2d)'].round(round_num)
-    Data['Mass Sand Fraction']=Data['Mass Sand Fraction'].round(round_num)
-    Data['Mass Fine Fraction']=Data['Mass Fine Fraction'].round(round_num)
-    
-    ## Add Month
-    Data['Month'] = sheet
-    Data['start'] =  start
-    Data['end'] = end
-    ## Add Monthly precip
-    Data['Precip'] = precip_month
-    ## Categorize by Tubes and Pods
-    Pods = Data[Data['Pod(P)/Tube(T)'].isin(['P1A','P2A','P3A','P1B','P2B','P3B','P1C','P2C','P3C'])]
-    Tubes = Data[Data['Pod(P)/Tube(T)'].isin(['T1A','T2A','T3A','T1B','T2B','T3B','T1C','T2C','T3C'])]
-    ## Add to All Samples
-    SedPods = SedPods.append(Pods)
-    SedTubes = SedTubes.append(Tubes)
-
-substrate = {'P3A':'coral','P3B':'coral','P3C':'coral','P2A':'mud','P2B':'coral','P2C':'coral','P1A':'sand','P1B':'sand','P1C':'coral',
-'T3A':'coral','T3B':'coral','T3C':'coral','T2A':'mud','T2B':'coral','T2C':'coral','T1A':'sand','T1B':'sand','T1C':'coral'}
-sub_colors={'coral':'blue','mud':'red','sand':'green'}
+## Open Spreadsheet of data
+#XL =pd.ExcelFile(datadir+'CRCP Sediment Data Bulk Weight and Composition.xlsx')
+#Precip = pd.DataFrame.from_csv(datadir+'Fagaalu_rain_gauge.csv').resample('M',how='sum')
+#
+#SedPods, SedTubes = pd.DataFrame(),pd.DataFrame()
+#count = 0
+#for sheet in XL.sheet_names:
+#    count +=1
+#    ## get start, end dates and add precip and Q
+#    sampleDates = XL.parse(sheet,parse_cols='A:B',index_col=1,parse_dates=True)[:2] 
+#    start, end = pd.to_datetime(sampleDates.index[0]), pd.to_datetime(sampleDates.index[1])
+#    precip_month = Precip[start:end].sum()[0]
+#    print 'start: '+str(start)+' end: '+str(end)+' precip: '+"%.0f"%precip_month
+#    
+#    Data = XL.parse(sheet,header=7,na_values=['NAN','N/A (disturbed)'],parse_cols='A:D,F:L')
+#    Data = Data.replace('NO SED',0)
+#    Data = Data.replace('N/A (disturbed)',np.NaN)
+#    Data['Total(g)'] = Data['Mass Sand Fraction'] + Data['Mass Fine Fraction']
+#    ## Get rid of negative values
+#    #Data['Total(g)']= Data['Total(g)'][Data['Total(g)']>=0]
+#    #Data['Mass Sand Fraction']= Data['Mass Sand Fraction'][Data['Mass Sand Fraction']>=0]
+#    #Data['Mass Fine Fraction']= Data['Mass Fine Fraction'][Data['Mass Fine Fraction']>=0]    
+#    ## Convert to g/m2/day
+#    Data['Total(gm2d)'] = Data['Total(g)']/Data['Area(m2)']/Data['Days deployed:']
+#    Data['Mass Sand Fraction'] = Data['Mass Sand Fraction']/Data['Area(m2)']/Data['Days deployed:']
+#    Data['Mass Fine Fraction'] = Data['Mass Fine Fraction']/Data['Area(m2)']/Data['Days deployed:']
+#    ## Round
+#    round_num = 5
+#    Data['Total(gm2d)']=Data['Total(gm2d)'].round(round_num)
+#    Data['Mass Sand Fraction']=Data['Mass Sand Fraction'].round(round_num)
+#    Data['Mass Fine Fraction']=Data['Mass Fine Fraction'].round(round_num)
+#    
+#    ## Add Month
+#    Data['Month'] = sheet
+#    Data['start'] =  start
+#    Data['end'] = end
+#    ## Add Monthly precip
+#    Data['Precip'] = precip_month
+#    ## Categorize by Tubes and Pods
+#    Pods = Data[Data['Pod(P)/Tube(T)'].isin(['P1A','P2A','P3A','P1B','P2B','P3B','P1C','P2C','P3C'])]
+#    Tubes = Data[Data['Pod(P)/Tube(T)'].isin(['T1A','T2A','T3A','T1B','T2B','T3B','T1C','T2C','T3C'])]
+#    ## Add to All Samples
+#    SedPods = SedPods.append(Pods)
+#    SedTubes = SedTubes.append(Tubes)
+#
+#substrate = {'P3A':'coral','P3B':'coral','P3C':'coral','P2A':'mud','P2B':'coral','P2C':'coral','P1A':'sand','P1B':'sand','P1C':'coral',
+#'T3A':'coral','T3B':'coral','T3C':'coral','T2A':'mud','T2B':'coral','T2C':'coral','T1A':'sand','T1B':'sand','T1C':'coral'}
+#sub_colors={'coral':'blue','mud':'red','sand':'green'}
     
 #### Plot each SedPod/SedTube over time
 def Sed_timeseries(data,max_y=40, show=True,save=False,filename=''):    
@@ -236,7 +236,7 @@ def Sed_fraction_timeseries(data,max_y=40,plot_health_thresholds=False,show=True
     show_plot(show,fig)
     savefig(save,filename)
     return
-#Sed_fraction_timeseries(SedPods,max_y=40,plot_health_thresholds=False,show=True,save=True,filename=rawfig+'SedPods-fraction')
+#Sed_fraction_timeseries(SedPods,max_y=40,plot_health_thresholds=False,show=True,save=False,filename=rawfig+'SedPods-fraction')
 #Sed_fraction_timeseries(SedTubes,max_y=650,plot_health_thresholds=True,show=True,save=True,filename=rawfig+'SedTubes-fraction')
 
 
