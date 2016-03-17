@@ -66,6 +66,6 @@ m.drawmapboundary()
 m.drawparallels(np.arange(-15.,-13.,.2),labels=[1,0,0,0])
 m.drawmeridians(np.arange(-175.,-168.,.2),labels=[0,0,1,0],rotation=60)
 
-plt.subplots_adjust(top=0.04)
+#plt.subplots_adjust(top=0.04)
 plt.show()
 
