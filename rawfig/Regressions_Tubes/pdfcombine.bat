@@ -1,1 +1,0 @@
-"C:\Program Files\gs\gs9.14\bin\gswin64c.exe" -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -sOutputFile="alltables.pdf" Total(gm2d).pdf TotalTerr(gm2d).pdf TotalTerr+Org(gm2d).pdf TotalCarb(gm2d).pdf

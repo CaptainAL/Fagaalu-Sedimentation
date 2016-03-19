@@ -1,0 +1,1 @@
+"C:\Program Files\gs\gs9.14\bin\gswin64c.exe" -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -sOutputFile="all_Fine_Pods.pdf" Fine(gm2d).pdf FineTerr(gm2d).pdf FineTerr+Org(gm2d).pdf FineCarb(gm2d).pdf

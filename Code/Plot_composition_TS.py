@@ -212,7 +212,7 @@ def Sed_Comp_Terr_v_Precip_TS(data,max_y=40,plot_health_thresholds=False,show=Tr
 
 
 #### Plot each SedPod/SedTube over time
-def Sed_Comp_Terr_v_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=False,filename=''):    
+def Sed_Comp_Terr_v_SSY_TS(data,comp='Total',max_y=40,plot_health_thresholds=False,show=True,save=False,filename=''):    
     cols =data['Pod(P)/Tube(T)'].value_counts().shape[0]
     fig, axes = plt.subplots(3, 3,sharey=True,figsize=(10,8))
     labels=['organic','terrigenous','No Data']
@@ -231,19 +231,19 @@ def Sed_Comp_Terr_v_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
         ## calculate weight of terrigenous sed
-        data_to_plot['Total Org(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%organic)']/100
-        data_to_plot['Total Terr(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
+        data_to_plot[comp+' Org(gm2d)'] = data_to_plot[comp+'(gm2d)'] * data_to_plot[comp+'(%organic)']/100
+        data_to_plot[comp+' Terr(gm2d)'] = data_to_plot[comp+'(gm2d)'] * data_to_plot[comp+'(%terr)']/100
 
         ## Select the points with NA values and replace with the ylim, plot all as grey
-        data_to_plot.replace('NaN',max_y)['Total Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
+        data_to_plot.replace('NaN',max_y)[comp+' Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
         
         ## Plot the total gm2d, then if the composition data is NA it will just plot the total
-        #data_to_plot['Total(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label='Total(no comp.)')
+        #data_to_plot[comp+'(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label=comp+'(no comp.)')
         
         ## create dataframe of sed and precip
-        sed = pd.DataFrame({'Total Org(gm2d)':data_to_plot['Total Org(gm2d)'].values,'Total Terr(gm2d)':data_to_plot['Total Terr(gm2d)'].values,'SSY':data_to_plot['SSY'].values}, index=data_to_plot['Month'].values)
+        sed = pd.DataFrame({comp+' Org(gm2d)':data_to_plot[comp+' Org(gm2d)'].values,comp+' Terr(gm2d)':data_to_plot[comp+' Terr(gm2d)'].values,'SSY':data_to_plot['SSY'].values}, index=data_to_plot['Month'].values)
         ## Plot data values in color over the grey
-        sed[['Total Org(gm2d)','Total Terr(gm2d)']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
+        sed[[comp+' Org(gm2d)',comp+' Terr(gm2d)']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
         ## Plot precip data
         ax2=axes1[x].twinx()
         ax2.yaxis.set_ticks_position('right')
@@ -273,8 +273,8 @@ def Sed_Comp_Terr_v_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,
     show_plot(show,fig)
     savefig(save,filename)
     return
-#Sed_Comp_Terr_v_SSY_TS(SedPods,max_y=40,plot_health_thresholds=False,show=True,save=True,filename=rawfig+'SedPods-composition and precip')
-#Sed_Comp_Terr_v_SSY_TS(SedTubes,max_y=650,plot_health_thresholds=True,show=True,save=True,filename=rawfig+'SedTubes-composition and precip')
+Sed_Comp_Terr_v_SSY_TS(SedPods,'Fine',max_y=40,plot_health_thresholds=False,show=True,save=True,filename=rawfig+'SedPods-composition and precip')
+Sed_Comp_Terr_v_SSY_TS(SedTubes,'Fine',max_y=650,plot_health_thresholds=True,show=True,save=True,filename=rawfig+'SedTubes-composition and precip')
 
 #### Plot each SedPod/SedTube over time
 def Sed_Comp_Terr_v_Precip_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=False,filename=''):    
@@ -394,27 +394,27 @@ def Sed_Comp_Terr_timeseries_single(data,max_y=40,plot_health_thresholds=False,s
 
 
 
-### Are Waves and SSY correlated?
-ssy_and_waves = SedPods[SedPods.index=='P1A'][['SSY','Waves']]
-ssy_v_waves = sm.OLS(ssy_and_waves['SSY'],ssy_and_waves['Waves']).fit()
-ssy_v_waves_r2, ssy_v_waves_pval = ssy_v_waves.rsquared_adj, ssy_v_waves.pvalues
-ssy_v_waves_VIF = 1/(1-ssy_v_waves_r2)
-
-
-
-
-## Plot Sed data
-for x, loc in enumerate(np.sort(SedTubes['Pod(P)/Tube(T)'].value_counts().index.values)):
-    print x, loc
-    ## Select data corresponding to the site location e.g. P1A, T2B etc
-    Tube = SedTubes[SedTubes['Pod(P)/Tube(T)'] == loc]
-    Tube = Tube[['Month','SSY','Waves','Total(gm2d)']]
-    est = sm.OLS(Tube['Total(gm2d)'],Tube[['SSY','Waves']]).fit()
-
-    r2_adj = est.rsquared_adj
-    pvals = est.pvalues
-    print 'SSY: '+'%.2f'%est.params['SSY']+'  '+'Waves: '+'%.2f'%est.params['Waves']
-
+#### Are Waves and SSY correlated?
+#ssy_and_waves = SedPods[SedPods.index=='P1A'][['SSY','Waves']]
+#ssy_v_waves = sm.OLS(ssy_and_waves['SSY'],ssy_and_waves['Waves']).fit()
+#ssy_v_waves_r2, ssy_v_waves_pval = ssy_v_waves.rsquared_adj, ssy_v_waves.pvalues
+#ssy_v_waves_VIF = 1/(1-ssy_v_waves_r2)
+#
+#
+#
+#
+### Plot Sed data
+#for x, loc in enumerate(np.sort(SedTubes['Pod(P)/Tube(T)'].value_counts().index.values)):
+#    print x, loc
+#    ## Select data corresponding to the site location e.g. P1A, T2B etc
+#    Tube = SedTubes[SedTubes['Pod(P)/Tube(T)'] == loc]
+#    Tube = Tube[['Month','SSY','Waves','Total(gm2d)']]
+#    est = sm.OLS(Tube['Total(gm2d)'],Tube[['SSY','Waves']]).fit()
+#
+#    r2_adj = est.rsquared_adj
+#    pvals = est.pvalues
+#    print 'SSY: '+'%.2f'%est.params['SSY']+'  '+'Waves: '+'%.2f'%est.params['Waves']
+#
 
 
 

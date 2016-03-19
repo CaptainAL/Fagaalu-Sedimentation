@@ -7,6 +7,7 @@ Created on Tue Jan 12 14:51:35 2016
 import pandas as pd
 from scipy.stats import spearmanr as spearman_r
 import statsmodels.api as sm
+import statsmodels.formula.api as smf
 
 ## Set Pandas display options
 pd.set_option('display.large_repr', 'truncate')
@@ -18,10 +19,10 @@ pd.set_option('display.max_columns', 13)
 def show_plot(show=False,fig=figure):
     if show==True:
         plt.show()
-def savefig(save=True,filename=''):
+def savefig(fig,save=True,filename=''):
     if save==True:
-        plt.savefig(filename+'.pdf') ## for publication
-        plt.savefig(filename+'.png') ## for manuscript
+        fig.savefig(filename+'.pdf') ## for publication
+        fig.savefig(filename+'.png') ## for manuscript
     return
     
     
@@ -74,14 +75,14 @@ for sheet in Comp_XL.sheet_names[1:12]:
     BulkWeight_Data['Total(g)'] = BulkWeight_Data['Mass Sand Fraction'] + BulkWeight_Data['Mass Fine Fraction']
     
     ## Calculate g/m2/day
-    BulkWeight_Data['Total(gm2d)'] = BulkWeight_Data['Total(g)']/BulkWeight_Data['Area(m2)']/BulkWeight_Data['Days deployed:']
+    BulkWeight_Data['Total_gm2d'] = BulkWeight_Data['Total(g)']/BulkWeight_Data['Area(m2)']/BulkWeight_Data['Days deployed:']
     BulkWeight_Data['Coarse(gm2d)'] = BulkWeight_Data['Mass Sand Fraction']/BulkWeight_Data['Area(m2)']/BulkWeight_Data['Days deployed:']
-    BulkWeight_Data['Fine(gm2d)'] = BulkWeight_Data['Mass Fine Fraction']/BulkWeight_Data['Area(m2)']/BulkWeight_Data['Days deployed:']
+    BulkWeight_Data['Fine_gm2d'] = BulkWeight_Data['Mass Fine Fraction']/BulkWeight_Data['Area(m2)']/BulkWeight_Data['Days deployed:']
     ## Round
     round_num = 5
-    BulkWeight_Data['Total(gm2d)']=BulkWeight_Data['Total(gm2d)'].round(round_num)
+    BulkWeight_Data['Total_gm2d']=BulkWeight_Data['Total_gm2d'].round(round_num)
     BulkWeight_Data['Coarse(gm2d)']=BulkWeight_Data['Coarse(gm2d)'].round(round_num)
-    BulkWeight_Data['Fine(gm2d)']=BulkWeight_Data['Fine(gm2d)'].round(round_num)
+    BulkWeight_Data['Fine_gm2d']=BulkWeight_Data['Fine_gm2d'].round(round_num)
     ## Add Month
     BulkWeight_Data['Month'] = sheet
     BulkWeight_Data['start'] = start
@@ -121,27 +122,27 @@ for sheet in Comp_XL.sheet_names[1:12]:
     BulkWeight_Data['Total(%terr)'] = (BulkWeight_Data['Coarse(%terr)']*BulkWeight_Data['%coarse']/100)+(BulkWeight_Data['Fine(%terr)']*BulkWeight_Data['%fine']/100)
     
     
-    BulkWeight_Data['Total Org(gm2d)'] = BulkWeight_Data['Total(gm2d)'] * BulkWeight_Data['Total(%organic)']/100
-    BulkWeight_Data['Total Terr(gm2d)'] = BulkWeight_Data['Total(gm2d)'] * BulkWeight_Data['Total(%terr)']/100
-    BulkWeight_Data['Total Terr+Org(gm2d)'] = BulkWeight_Data['Total Terr(gm2d)'] + BulkWeight_Data['Total Org(gm2d)'] 
-    BulkWeight_Data['Total Carb(gm2d)'] = BulkWeight_Data['Total(gm2d)'] * BulkWeight_Data['Total(%carb)']/100
+    BulkWeight_Data['Total_Org_gm2d'] = BulkWeight_Data['Total_gm2d'] * BulkWeight_Data['Total(%organic)']/100
+    BulkWeight_Data['Total_Terr_gm2d'] = BulkWeight_Data['Total_gm2d'] * BulkWeight_Data['Total(%terr)']/100
+    BulkWeight_Data['Total_TerrOrg_gm2d'] = BulkWeight_Data['Total_Terr_gm2d'] + BulkWeight_Data['Total_Org_gm2d'] 
+    BulkWeight_Data['Total_Carb_gm2d'] = BulkWeight_Data['Total_gm2d'] * BulkWeight_Data['Total(%carb)']/100
     
     BulkWeight_Data['Coarse Org(gm2d)'] = BulkWeight_Data['Coarse(gm2d)'] * BulkWeight_Data['Coarse(%organic)']/100
     BulkWeight_Data['Coarse Terr(gm2d)'] = BulkWeight_Data['Coarse(gm2d)'] * BulkWeight_Data['Coarse(%terr)']/100
     BulkWeight_Data['Coarse Terr+Org(gm2d)'] = BulkWeight_Data['Coarse Terr(gm2d)'] + BulkWeight_Data['Coarse Org(gm2d)'] 
     BulkWeight_Data['Coarse Carb(gm2d)'] = BulkWeight_Data['Coarse(gm2d)'] * BulkWeight_Data['Coarse(%carb)']/100
     
-    BulkWeight_Data['Fine Org(gm2d)'] = BulkWeight_Data['Fine(gm2d)'] * BulkWeight_Data['Fine(%organic)']/100
-    BulkWeight_Data['Fine Terr(gm2d)'] = BulkWeight_Data['Fine(gm2d)'] * BulkWeight_Data['Fine(%terr)']/100
-    BulkWeight_Data['Fine Terr+Org(gm2d)'] = BulkWeight_Data['Fine Terr(gm2d)'] + BulkWeight_Data['Fine Org(gm2d)'] 
-    BulkWeight_Data['Fine Carb(gm2d)'] = BulkWeight_Data['Fine(gm2d)'] * BulkWeight_Data['Fine(%carb)']/100
+    BulkWeight_Data['Fine Org(gm2d)'] = BulkWeight_Data['Fine_gm2d'] * BulkWeight_Data['Fine(%organic)']/100
+    BulkWeight_Data['Fine_Terr_gm2d'] = BulkWeight_Data['Fine_gm2d'] * BulkWeight_Data['Fine(%terr)']/100
+    BulkWeight_Data['Fine_TerrOrg_gm2d'] = BulkWeight_Data['Fine_Terr_gm2d'] + BulkWeight_Data['Fine Org(gm2d)'] 
+    BulkWeight_Data['Fine_Carb_gm2d'] = BulkWeight_Data['Fine_gm2d'] * BulkWeight_Data['Fine(%carb)']/100
 
     ## Categorize by Tubes and Pods
     Pods = BulkWeight_Data[BulkWeight_Data['Pod(P)/Tube(T)'].isin(['P1A','P2A','P3A','P1B','P2B','P3B','P1C','P2C','P3C'])]
     Tubes = BulkWeight_Data[BulkWeight_Data['Pod(P)/Tube(T)'].isin(['T1A','T2A','T3A','T1B','T2B','T3B','T1C','T2C','T3C'])]    
     
     ## Add to All Samples
-    #col_names = ['Month','start','end','Pod(P)/Tube(T)','Precip','SSY','Waves','Mass Sand Fraction','Mass Fine Fraction','Total(g)','Total(gm2d)','Lat','Lon','Total(%organic)','Total(%carb)','Total(%terr)','Coarse(%organic)','Coarse(%carb)','Coarse(%terr)','Fine(%organic)','Fine(%carb)','Fine(%terr)']
+    #col_names = ['Month','start','end','Pod(P)/Tube(T)','Precip','SSY','Waves','Mass Sand Fraction','Mass Fine Fraction','Total(g)','Total_gm2d','Lat','Lon','Total(%organic)','Total(%carb)','Total(%terr)','Coarse(%organic)','Coarse(%carb)','Coarse(%terr)','Fine(%organic)','Fine(%carb)','Fine(%terr)']
     # SedPods
     SedPods = SedPods.append(Pods)
     # reorder columns
@@ -152,7 +153,10 @@ for sheet in Comp_XL.sheet_names[1:12]:
 
 def pval_aster(pval):
     #print pval
-    pval = float(pval)    
+    try:
+        pval = float(pval)
+    except: 
+        pval = np.nan
     if pval >= 0.10:
         ast = ''
         pcol = 'grey'
@@ -174,7 +178,7 @@ def pval_aster(pval):
     return ast, pcol
 
 #### Plot each SedPod vs SSY
-def SedAcc_vs_SSY_Waves(data,sed_acc='Total(gm2d)',max_y=40,plot_health_thresholds=False,show=True,save=False,filename=''):  
+def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_thresholds=False,show=True,save=False,filename=''):  
     plt.ioff()
     cols =data['Pod(P)/Tube(T)'].value_counts().shape[0]
 
@@ -188,8 +192,11 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total(gm2d)',max_y=40,plot_health_threshol
         tubes_or_pods = 'Pods'
         north_reef = ['P'+x for x in north_reef] 
         south_reef = ['P'+x for x in south_reef]     
-    
-    fig, axes = plt.subplots(3, 3,sharey=False,figsize=(10,8))
+    ## Plot accumulation
+    fig, axes = plt.subplots(3, 3,sharey=False,figsize=(12,8))
+    ## Plot residuals of Sed_Acc and SSY
+    fig_resid, axes_resid = plt.subplots(3, 3,sharey=False,figsize=(12,8))
+
     ## Regressions
     reg = pd.DataFrame()    
     reg_table = pd.DataFrame()
@@ -197,10 +204,12 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total(gm2d)',max_y=40,plot_health_threshol
     for x, loc in enumerate(np.sort(data['Pod(P)/Tube(T)'].value_counts().index.values)):
         print x, loc
         ## Data for Regression
-        reg_loc = data[data['Pod(P)/Tube(T)'] == loc].dropna()[[sed_acc,'SSY','Waves']]
+        reg_loc = data[data['Pod(P)/Tube(T)'] == loc][['Month',sed_acc,'SSY','Waves']]
+        reg_loc = reg_loc.dropna()
         reg = reg.append(reg_loc)
         ## Fit regression
-        reg_mod = sm.OLS(reg_loc[sed_acc], reg_loc[['SSY','Waves']]).fit()
+        #reg_mod = sm.OLS(reg_loc[sed_acc], reg_loc[['SSY','Waves']]).fit()
+        reg_mod = smf.ols(formula=sed_acc+" ~ SSY + Waves", data=reg_loc).fit()
         ## regression betas
         SSY_beta, Waves_beta = '%.3f'%reg_mod.params['SSY'], '%.3f'%reg_mod.params['Waves']
         ## P values
@@ -219,31 +228,34 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total(gm2d)',max_y=40,plot_health_threshol
             Waves_spear_r = '%.3f'%Waves_spear[0]
         elif Waves_spear[1] >= 0.10:
             Waves_spear_r = ''
-        
+        ## Make table of model parameters
         reg_mod_table = pd.DataFrame({'Sed':sed_acc, 'r2adj':'%.2f'%reg_mod.rsquared_adj,'SSY_spear_r':SSY_spear_r,'SSY_beta':SSY_beta,'SSY_pval':SSY_pval[:5],'Waves_spear_r':Waves_spear_r,'Waves_beta':Waves_beta,'Waves_pval':Waves_pval[:5]},index=[loc])
         reg_table = reg_table.append(reg_mod_table)
         
-        
+        ## PLOTS
         axes1=axes.reshape(-1)
-        ## Select data corresponding to the site location e.g. P1A, T2B etc
-        data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
-        ## Plot the total gm2d, then if the composition data is NA it will just plot the total
-        data_to_plot.plot(x='SSY',y=sed_acc,ax=axes1[x],color='r',ls='None',marker='o',fillstyle='none')
-        #data_to_plot.plot(x='SSY',y='Total Terr(gm2d)',ax=axes1[x],color='r',ls='None',marker='o')
-        #data_to_plot.plot(x='SSY',y='Total Terr+Org(gm2d)',ax=axes1[x],color='g',ls='None',marker='o')
-        #data_to_plot.plot(x='SSY',y='Total Carb(gm2d)',ax=axes1[x],color='b',ls='None',marker='o')
-        
+        ## Plot SSY vs Sed_Acc
+        reg_loc.plot(x='SSY',y=sed_acc,ax=axes1[x],color='r',ls='None',marker='o',fillstyle='none')
+        axes1[x].set_xlim(0,250), axes1[x].set_ylim(0,max_y)
+        ## Plot Waves vs Sed_Acc
         axes2 = axes1[x].twiny()
-        data_to_plot.plot(x='Waves',y=sed_acc,ax=axes2,color='b',ls='None',marker='s',fillstyle='none')
-        #data_to_plot.plot(x='Waves',y='Total Terr(gm2d)',ax=axes2,color='r',ls='None',marker='s')
-        #data_to_plot.plot(x='Waves',y='Total Terr+Org(gm2d)',ax=axes2,color='g',ls='None',marker='s')
-        #data_to_plot.plot(x='Waves',y='Total Carb(gm2d)',ax=axes2,color='b',ls='None',marker='s')        
-        axes2.set_xlim(0,2.5)
+        reg_loc.plot(x='Waves',y=sed_acc,ax=axes2,color='b',ls='None',marker='s',fillstyle='none')
+        axes2.set_xlim(0,2.5), axes2.set_ylim(0,max_y)
         
-        for row in data_to_plot.dropna().iterrows():
+        ## Figure/Plots of residuals vs predicted value
+        axes1_resid = axes_resid.reshape(-1)        
+        sed_acc_vs_ssy_mod = sm.OLS(reg_loc[sed_acc], reg_loc['SSY']).fit()
+        sed_acc_vs_ssy_mod = smf.ols(formula=sed_acc+" ~ SSY", data=reg_loc).fit()
+        reg_loc['SSY_resid'] = sed_acc_vs_ssy_mod.resid
+        reg_loc['SSY_pred'] = sed_acc_vs_ssy_mod.predict()
+        reg_loc.plot(x='SSY_pred',y='SSY_resid',ax=axes1_resid[x],color='k',ls='None',marker='v')
+        axes1_resid[x].set_ylabel('SSY residuals'), axes1_resid[x].set_xlim(0,reg_loc['SSY_pred'].max()*1.1)
+        axes1_resid[x].grid(False)
+        ## Annotate Points
+        for row in reg_loc.iterrows():
             print row[1]['Month']
             try:
-                #axes1[x].annotate(row[1]['Month'],xy=(row[1]['SSY']+10,row[1]['Total Terr+Org(gm2d)']),fontsize=6)
+                #axes1[x].annotate(row[1]['Month'],xy=(row[1]['SSY']+10,row[1]['Total_TerrOrg_gm2d']),fontsize=6)
                 print
             except:
                 raise   
@@ -254,10 +266,10 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total(gm2d)',max_y=40,plot_health_threshol
         axes1[x].legend().set_visible(False), axes2.legend().set_visible(False)
         # Subplot title eg P1A
         axes1[x].text(0.05,.95,loc,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes)
-        ## Pvalues
-        axes1[x].text(0.65,.95,'p_SSY:'+SSY_pval,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes,fontsize=9,color=SSY_pval_col)
-        axes1[x].text(0.65,.90,'p_Wave:'+Waves_pval,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes,fontsize=9,color=Waves_pval_col)        
-        
+        ## Plot text Pvalues
+        axes1[x].text(0.55,.95,'p_SSY:'+SSY_pval,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes,fontsize=9,color=SSY_pval_col)
+        axes1[x].text(0.55,.90,'p_Wave:'+Waves_pval,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes,fontsize=9,color=Waves_pval_col)        
+                
         if x<=2:
             axes2.xaxis.set_visible(True), axes2.set_xlabel('Waves (m)',color='b')
             for tl in axes2.get_xticklabels():
@@ -274,10 +286,15 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total(gm2d)',max_y=40,plot_health_threshol
         ax.xaxis.set_visible(True)
         for tl in ax.get_xticklabels():
             tl.set_color('r')
-    plt.tight_layout(pad=0.2)
-    plt.subplots_adjust(top=0.9), plt.suptitle(tubes_or_pods+' '+sed_acc,fontsize=16)
+    fig.tight_layout(pad=0.2)
+    fig.subplots_adjust(top=0.9), fig.suptitle(tubes_or_pods+' '+sed_acc,fontsize=16)
+    
+    fig_resid.tight_layout(pad=0.2)
+    fig_resid.subplots_adjust(top=0.9), fig_resid.suptitle(tubes_or_pods+' '+sed_acc,fontsize=16)
+    
     show_plot(show,fig)
-    savefig(save,filename)
+    savefig(fig,save,filename)
+    savefig(fig_resid,save,filename+'_residuals')
     
     ### Mean North/South
     north_sed = data[data['Pod(P)/Tube(T)'].isin(north_reef)].dropna()
@@ -306,6 +323,7 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total(gm2d)',max_y=40,plot_health_threshol
         reg = reg.append(reg_loc)
         ## Fit regression
         reg_mod = sm.OLS(reg_loc[sed_acc], reg_loc[['SSY','Waves']]).fit()
+        reg_mod = smf.ols(formula=sed_acc+" ~ SSY + Waves", data=reg_loc).fit()
         ## regression betas
         SSY_beta, Waves_beta = '%.3f'%reg_mod.params['SSY'], '%.3f'%reg_mod.params['Waves']
         ## P values
@@ -333,29 +351,32 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total(gm2d)',max_y=40,plot_health_threshol
 ## SHOW == True    
 
 ## TOTAL
-#Pods_Total = SedAcc_vs_SSY_Waves(SedPods,'Total(gm2d)',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
-#Tubes_Total= SedAcc_vs_SSY_Waves(SedTubes,'Total(gm2d)',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  
+#Pods_Total = SedAcc_vs_SSY_Waves(SedPods,'Total_gm2d',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
+#Tubes_Total= SedAcc_vs_SSY_Waves(SedTubes,'Total_gm2d',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  
 ## TERR
-#Pods_Terr = SedAcc_vs_SSY_Waves(SedPods,'Total Terr(gm2d)',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
-#Tubes_Terr= SedAcc_vs_SSY_Waves(SedTubes,'Total Terr(gm2d)',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  
+#Pods_Terr = SedAcc_vs_SSY_Waves(SedPods,'Total_Terr_gm2d',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
+#Tubes_Terr= SedAcc_vs_SSY_Waves(SedTubes,'Total_Terr_gm2d',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  
 ## TERR + ORG
-#Pods_TerrOrg = SedAcc_vs_SSY_Waves(SedPods,'Total Terr+Org(gm2d)',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
-#Tubes_TerrOrg= SedAcc_vs_SSY_Waves(SedTubes,'Total Terr+Org(gm2d)',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')     
+#Pods_TerrOrg = SedAcc_vs_SSY_Waves(SedPods,'Total_TerrOrg_gm2d',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
+#Tubes_TerrOrg= SedAcc_vs_SSY_Waves(SedTubes,'Total_TerrOrg_gm2d',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')     
 ### CARB
-#Pods_Carb = SedAcc_vs_SSY_Waves(SedPods,'Total Carb(gm2d)',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
-#Tubes_Carb= SedAcc_vs_SSY_Waves(SedTubes,'Total Carb(gm2d)',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  
+#Pods_Carb = SedAcc_vs_SSY_Waves(SedPods,'Total_Carb_gm2d',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
+#Tubes_Carb= SedAcc_vs_SSY_Waves(SedTubes,'Total_Carb_gm2d',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  
 
 ## FINE TERR
-#Pods_Terr = SedAcc_vs_SSY_Waves(SedPods,'Fine Terr(gm2d)',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
-#Tubes_Terr= SedAcc_vs_SSY_Waves(SedTubes,'Fine Terr(gm2d)',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  
+#Pods_Terr = SedAcc_vs_SSY_Waves(SedPods,'Fine_Terr_gm2d',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
+#Tubes_Terr= SedAcc_vs_SSY_Waves(SedTubes,'Fine_Terr_gm2d',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  
 
-## Compile all regression models
+### Compile all regression models
 ## Plot and save all of them, but don't display them
-#Regressions = pd.DataFrame()
-#for comp in ['Total(gm2d)', 'Total Terr(gm2d)', 'Total Terr+Org(gm2d)', 'Total Carb(gm2d)']:
-#    Regressions = Regressions.append(SedAcc_vs_SSY_Waves(SedPods,comp,max_y=40,plot_health_thresholds=False,show=False,save=True,filename=rawfig+'Regressions_Pods/'+comp.replace(" ", "")) )
-#    Regressions = Regressions.append(SedAcc_vs_SSY_Waves(SedTubes,comp,max_y=600,plot_health_thresholds=False,show=False,save=True,filename=rawfig+'Regressions_Tubes/'+comp.replace(" ", "")) )
-#Regressions = Regressions[['Sed','SSY_spear_r','SSY_beta','Waves_spear_r','Waves_beta','SSY_pval','Waves_pval','r2adj']]
+Regressions = pd.DataFrame()
+comps = ['Total_gm2d', 'Total_Terr_gm2d', 'Total_TerrOrg_gm2d', 'Total_Carb_gm2d']
+comps = ['Fine_gm2d', 'Fine_Terr_gm2d', 'Fine_TerrOrg_gm2d', 'Fine_Carb_gm2d']
+for comp in comps:
+    Regressions = Regressions.append(SedAcc_vs_SSY_Waves(SedPods,comp,max_y=25,plot_health_thresholds=False,show=False,save=True,filename=rawfig+'Regressions_Pods/'+comp.replace(" ", "")) )
+    Regressions = Regressions.append(SedAcc_vs_SSY_Waves(SedTubes,comp,max_y=600,plot_health_thresholds=False,show=False,save=True,filename=rawfig+'Regressions_Tubes/'+comp.replace(" ", "")) )
+    plt.close('all')
+Regressions = Regressions[['Sed','SSY_spear_r','SSY_beta','Waves_spear_r','Waves_beta','SSY_pval','Waves_pval','r2adj']]
 
 ## Save to csv
 #Regressions.to_csv(datadir+'Regressions.csv')
@@ -368,54 +389,63 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total(gm2d)',max_y=40,plot_health_threshol
 ### Both SSY and Waves
 #Regressions[Regressions['r2adj'].astype(np.float)<0.10]
 
-
-## Make summary table of Pvalues
-pval_summary_table = pd.DataFrame()
-for x, loc in enumerate(Regressions.index.unique()):
-    print loc
-    
-    reg = Regressions.ix[loc].T
-    reg.columns = reg.ix['Sed'].values
-    
-    def pval_asterisks_together(name):
-        pval_wave = pval_aster(reg.ix['Waves_pval'][name])[0] 
-        pval_ssy = pval_aster(reg.ix['SSY_pval'][name])[0] 
-        if pval_ssy != '':
-            pval_ssy = '; '+pval_ssy
-        pvals = pval_wave + pval_ssy
-        return pvals
+def summary_table_DFs():
+    ## Make summary table of Pvalues
+    pval_summary_table = pd.DataFrame()
+    for x, loc in enumerate(Regressions.index.unique()):
+        print loc
         
-    total = pval_asterisks_together('Total(gm2d)')
-    total_terr = pval_asterisks_together('Total Terr(gm2d)')
-    total_terr_org = pval_asterisks_together('Total Terr+Org(gm2d)')
-    total_carb = pval_asterisks_together('Total Carb(gm2d)')
-
-    pval_summary_table = pval_summary_table.append(pd.DataFrame({'Total(gm2d)':total,'Total Terr(gm2d)':total_terr, 'Total Terr+Org(gm2d)':total_terr_org, 'Total Carb(gm2d) ':total_carb},index=[loc]))
-
-
-## Make summary table of Spearman R
-spear_summary_table = pd.DataFrame()
-for x, loc in enumerate(Regressions.index.unique()):
-    print loc
-    
-    reg = Regressions.ix[loc].T
-    reg.columns = reg.ix['Sed'].values
-    
-    def spearman_together(name):
-        spear_wave = reg.ix['Waves_spear_r'][name]
-        spear_ssy = reg.ix['SSY_spear_r'][name]
-        if spear_ssy != '':
-            spear_ssy = '; '+spear_ssy
-        spear = spear_wave + spear_ssy
-        return spear
+        reg = Regressions.ix[loc].T
+        reg.columns = reg.ix['Sed'].values
         
-    total = spearman_together('Total(gm2d)')
-    total_terr = spearman_together('Total Terr(gm2d)')
-    total_terr_org = spearman_together('Total Terr+Org(gm2d)')
-    total_carb = spearman_together('Total Carb(gm2d)')
-
-    spear_summary_table = spear_summary_table.append(pd.DataFrame({'Total(gm2d)':total,'Total Terr(gm2d)':total_terr, 'Total Terr+Org(gm2d)':total_terr_org, 'Total Carb(gm2d) ':total_carb},index=[loc]))
-
+        def pval_asterisks_together(name):
+            pval_wave = pval_aster(reg.ix['Waves_pval'][name])[0]
+            if pval_wave != '':
+                pval_wave = 'w'+'<sup>'+ pval_wave+'</sup>'
+                
+            pval_ssy = pval_aster(reg.ix['SSY_pval'][name])[0] 
+            if pval_ssy != '':
+                pval_ssy = ' ssy'+'<sup>'+pval_ssy +'</sup>'
+            pvals = pval_wave + pval_ssy
+            return pvals
+            
+        total = pval_asterisks_together(comps[0])
+        total_terr = pval_asterisks_together(comps[1])
+        total_terr_org = pval_asterisks_together(comps[2])
+        total_carb = pval_asterisks_together(comps[3])
+    
+        pval_summary_table = pval_summary_table.append(pd.DataFrame({comps[0]:total,comps[1]:total_terr, comps[2]:total_terr_org, comps[3]:total_carb},index=[loc]))
+    
+    
+    ## Make summary table of Spearman R
+    spear_summary_table = pd.DataFrame()
+    for x, loc in enumerate(Regressions.index.unique()):
+        #print loc
+        
+        reg = Regressions.ix[loc].T
+        reg.columns = reg.ix['Sed'].values
+        
+        def spearman_together(name):
+            spear_wave = reg.ix['Waves_spear_r'][name]
+            if spear_wave != '':
+                spear_wave = 'w: '+spear_wave
+            spear_ssy = reg.ix['SSY_spear_r'][name]
+            if spear_ssy != '':
+                spear_ssy = ' ssy:'+spear_ssy
+            spear = spear_wave + spear_ssy
+            return spear
+            
+        total = spearman_together(comps[0])
+        total_terr = spearman_together(comps[1])
+        total_terr_org = spearman_together(comps[2])
+        total_carb = spearman_together(comps[3])
+    
+        spear_summary_table = spear_summary_table.append(pd.DataFrame({comps[0]:total,comps[1]:total_terr, comps[2]:total_terr_org, comps[3]:total_carb},index=[loc]))
+    return pval_summary_table[[comps[0],comps[1],comps[2],comps[3]]], spear_summary_table[[comps[0],comps[1],comps[2],comps[3]]]
+    
+pval_summary_table, spear_summary_table = summary_table_DFs() 
+    
+    
 ## Call R modules
 #from rpy2.robjects.packages import importr
 import rpy2.robjects as ro
@@ -427,11 +457,11 @@ ro.r('x[1]="lets talk to R"')
 print(ro.r('x'))
 
 ### Summary Table to htmlTables
-def summary_table_R(summary_table, browser=True):
+def summary_table_R(summary_table, caption, browser=True):
 
     ## convert to R Data Frame
     table_df = com.convert_to_r_dataframe(summary_table)
-    caption="Significant p values for Waves; SSY."
+    #caption="Significant p values for Waves; SSY."
     table_num=1
     ## Send to R
     ro.globalenv['table_df_vals'] = table_df
@@ -445,7 +475,7 @@ def summary_table_R(summary_table, browser=True):
     ## Create table in R
     table_code_str = " \
     table_df, \
-    header= c('Total(gm2d)', 'Total Terr(gm2d)', 'Total Terr+Org(gm2d)', 'Total Carb(gm2d)'), \
+    header= c('"+comps[0]+"', '"+comps[1]+"', '"+comps[2]+"', '"+comps[3]+"'), \
     caption=table_caption, \
     css.cell = 'padding-left: .5em; padding-right: .2em;'  \
     "
@@ -466,8 +496,8 @@ def summary_table_R(summary_table, browser=True):
     ## output to file through pandoc
     #pypandoc.convert(htmlcode, 'markdown', format='markdown', outputfile= datadir+'landcover.html')
     return 
-summary_table_R(pval_summary_table, browser=True)
-summary_table_R(spear_summary_table, browser=True)
+summary_table_R(pval_summary_table, "P-values", browser=True)
+summary_table_R(spear_summary_table, "Spearman correlation coefficients", browser=True)
 
 
 
@@ -489,17 +519,17 @@ def SedAcc_vs_Precip(data,max_y=40,plot_health_thresholds=False,show=True,save=F
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
         ## calculate weight of terrigenous sed
-        data_to_plot['Total Org(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%organic)']/100
-        data_to_plot['Total Terr(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
-        data_to_plot['Total Terr+Org(gm2d)'] = data_to_plot['Total Terr(gm2d)'] + data_to_plot['Total Org(gm2d)'] 
+        data_to_plot['Total_Org_gm2d'] = data_to_plot['Total_gm2d'] * data_to_plot['Total(%organic)']/100
+        data_to_plot['Total_Terr_gm2d'] = data_to_plot['Total_gm2d'] * data_to_plot['Total(%terr)']/100
+        data_to_plot['Total_TerrOrg_gm2d'] = data_to_plot['Total_Terr_gm2d'] + data_to_plot['Total_Org_gm2d'] 
 
         ## Plot the total gm2d, then if the composition data is NA it will just plot the total
-        data_to_plot.plot(x='Precip',y='Total Terr+Org(gm2d)',ax=axes1[x],color='k',ls='None',marker='o')
+        data_to_plot.plot(x='Precip',y='Total_TerrOrg_gm2d',ax=axes1[x],color='k',ls='None',marker='o')
         
         for row in data_to_plot.dropna().iterrows():
             print row[1]['Month']
             try:
-                axes1[x].annotate(row[1]['Month'],xy=(row[1]['Precip']+10,row[1]['Total Terr+Org(gm2d)']),fontsize=6)
+                axes1[x].annotate(row[1]['Month'],xy=(row[1]['Precip']+10,row[1]['Total_TerrOrg_gm2d']),fontsize=6)
             except:
                 raise
 
@@ -546,12 +576,12 @@ def Sed_Time_Series_plots():
             dep_end = row[1]['end'] - dt.timedelta(minutes = 15)
             # Stepped lines
             if as_lines == False:
-                SedPods_TS[col].ix[dep_start:dep_end] = row[1]['Total(gm2d)'] 
+                SedPods_TS[col].ix[dep_start:dep_end] = row[1]['Total_gm2d'] 
                 # Add Precip data
                 SedPods_TS['Precip'].ix[dep_start:dep_end] = row[1]['Precip']
             # Point lines
             if as_lines == True:
-                SedPods_TS[col].ix[dep_end] = row[1]['Total(gm2d)'] 
+                SedPods_TS[col].ix[dep_end] = row[1]['Total_gm2d'] 
                 # Add Precip data
                 SedPods_TS['Precip'].ix[dep_end] = row[1]['Precip']
     
@@ -591,11 +621,11 @@ def Sed_Time_Series_plots():
             dep_end = row[1]['end'] - dt.timedelta(minutes = 15)
             # Stepped lines
             if as_lines == False:
-                SedTubes_TS[col].ix[dep_start:dep_end] = row[1]['Total(gm2d)'] 
+                SedTubes_TS[col].ix[dep_start:dep_end] = row[1]['Total_gm2d'] 
                 SedTubes_TS['Precip'].ix[dep_end] = row[1]['Precip']
             # Point lines
             if as_lines == True:
-                SedTubes_TS[col].ix[dep_end] = row[1]['Total(gm2d)'] 
+                SedTubes_TS[col].ix[dep_end] = row[1]['Total_gm2d'] 
                 SedTubes_TS['Precip'].ix[dep_end] = row[1]['Precip']
                 
     if as_lines == True:
@@ -643,12 +673,12 @@ def Sed_Time_Series_dots():
             dep_end = row[1]['end'] - dt.timedelta(minutes = 15)
             # Stepped lines
             if as_lines == False:
-                SedPods_TS[col].ix[dep_start:dep_end] = row[1]['Total(gm2d)'] 
+                SedPods_TS[col].ix[dep_start:dep_end] = row[1]['Total_gm2d'] 
                 # Add Precip data
                 SedPods_TS['Precip'].ix[dep_start:dep_end] = row[1]['Precip']
             # Point lines
             if as_lines == True:
-                SedPods_TS[col].ix[dep_end] = row[1]['Total(gm2d)'] 
+                SedPods_TS[col].ix[dep_end] = row[1]['Total_gm2d'] 
                 # Add Precip data
                 SedPods_TS['Precip'].ix[dep_end] = row[1]['Precip']
     
@@ -687,11 +717,11 @@ def Sed_Time_Series_dots():
             dep_end = row[1]['end'] - dt.timedelta(minutes = 15)
             # Stepped lines
             if as_lines == False:
-                SedTubes_TS[col].ix[dep_start:dep_end] = row[1]['Total(gm2d)'] 
+                SedTubes_TS[col].ix[dep_start:dep_end] = row[1]['Total_gm2d'] 
                 SedTubes_TS['Precip'].ix[dep_end] = row[1]['Precip']
             # Point lines
             if as_lines == True:
-                SedTubes_TS[col].ix[dep_end] = row[1]['Total(gm2d)'] 
+                SedTubes_TS[col].ix[dep_end] = row[1]['Total_gm2d'] 
                 SedTubes_TS['Precip'].ix[dep_end] = row[1]['Precip']
                 
     if as_lines == True:
@@ -723,7 +753,7 @@ def Sed_Time_Series_dots():
 #Sed_Time_Series_dots() 
     
 # Select individual location
-# ex. SedPods[['Month','Total(gm2d)','Total(%terr)']][0::9] gets P1A, [1::9] gets P1B etc
+# ex. SedPods[['Month','Total_gm2d','Total(%terr)']][0::9] gets P1A, [1::9] gets P1B etc
         
 
 

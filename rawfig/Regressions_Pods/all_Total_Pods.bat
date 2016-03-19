@@ -1,0 +1,1 @@
+"C:\Program Files\gs\gs9.14\bin\gswin64c.exe" -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -sOutputFile="all_Total_Pods.pdf" Total_gm2d.pdf Total_Terr_gm2d.pdf Total_TerrOrg_gm2d.pdf Total_Carb_gm2d.pdf
