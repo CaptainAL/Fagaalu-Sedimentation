@@ -36,19 +36,16 @@ def Sed_Comp_v_Precip_TS(data,max_y=40,plot_health_thresholds=False,show=True,sa
 
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
-        ## calculate weight of terrigenous sed
-        data_to_plot['Total Org(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%organic)']/100
-        data_to_plot['Total Terr(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
-        data_to_plot['Total Carb(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%carb)']/100
+
         ## Select the points with NA values and replace with the ylim, plot all as grey
-        data_to_plot.replace('NaN',max_y)['Total Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
+        data_to_plot.replace('NaN',max_y)['Total_Terr_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
         ## Plot the total gm2d, then if the composition data is NA it will just plot the total
         data_to_plot['Total(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label='Total(no comp.)')
         
         ## create dataframe of sed and precip
-        sed = pd.DataFrame({'Total Org(gm2d)':data_to_plot['Total Org(gm2d)'].values,'Total Terr(gm2d)':data_to_plot['Total Terr(gm2d)'].values,'Precip':data_to_plot['Precip'].values,'Total Carb(gm2d)':data_to_plot['Total Carb(gm2d)'].values}, index=data_to_plot['Month'].values)
+        sed = pd.DataFrame({'Total_Org_gm2d':data_to_plot['Total_Org_gm2d'].values,'Total_Terr_gm2d':data_to_plot['Total_Terr_gm2d'].values,'Precip':data_to_plot['Precip'].values,'Total_Carb_gm2d':data_to_plot['Total_Carb_gm2d'].values}, index=data_to_plot['Month'].values)
         ## Plot data values in color over the grey
-        sed[['Total Org(gm2d)','Total Terr(gm2d)','Total Carb(gm2d)']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
+        sed[['Total_Org_gm2d','Total_Terr_gm2d','Total_Carb_gm2d']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
         ## Plot precip data
         ax2=axes1[x].twinx()
         ax2.yaxis.set_ticks_position('right')
@@ -88,7 +85,8 @@ def Sed_Comp_v_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=
     labels=['organic','terrigenous','carbonate','No Data']
     colors=['green','red','blue','grey']
     bars=[axes[0,2].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]
-    lines= axes[0,2].plot(0,0,color='b',marker='s',label='SSY(tons)')
+    lines= axes[0,2].plot(0,0,color='r',marker='.',label='SSY(tons)')
+    lines= axes[0,2].plot(0,0,color='b',marker='.',label='Waves(MMSWH)')
     handles, labels = axes[0,2].get_legend_handles_labels()
     ## Plot Sed data
     for x, loc in enumerate(np.sort(data['Pod(P)/Tube(T)'].value_counts().index.values)):
@@ -100,30 +98,39 @@ def Sed_Comp_v_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=
 
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
-        ## calculate weight of terrigenous sed
-        data_to_plot['Total Org(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%organic)']/100
-        data_to_plot['Total Terr(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
-        data_to_plot['Total Carb(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%carb)']/100
         ## Select the points with NA values and replace with the ylim, plot all as grey
-        data_to_plot.replace('NaN',max_y)['Total Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
+        data_to_plot.replace('NaN',max_y)['Total_Terr_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
         ## Plot the total gm2d, then if the composition data is NA it will just plot the total
-        data_to_plot['Total(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label='Total(no comp.)')
+        data_to_plot['Total_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label='Total(no comp.)')
         
-        ## create dataframe of sed and precip
-        sed = pd.DataFrame({'Total Org(gm2d)':data_to_plot['Total Org(gm2d)'].values,'Total Terr(gm2d)':data_to_plot['Total Terr(gm2d)'].values,'SSY':data_to_plot['SSY'].values,'Total Carb(gm2d)':data_to_plot['Total Carb(gm2d)'].values}, index=data_to_plot['Month'].values)
+        ## create dataframe of sed accumulation, SSY, and Waves
+        sed = pd.DataFrame({'Total_Org_gm2d':data_to_plot['Total_Org_gm2d'].values,'Total_Terr_gm2d':data_to_plot['Total_Terr_gm2d'].values,'SSY':data_to_plot['SSY'].values,'Waves':data_to_plot['Waves'].values,'Total_Carb_gm2d':data_to_plot['Total_Carb_gm2d'].values}, index=data_to_plot['Month'].values)
         ## Plot data values in color over the grey
-        sed[['Total Org(gm2d)','Total Terr(gm2d)','Total Carb(gm2d)']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
-        ## Plot precip data
+        sed[['Total_Org_gm2d','Total_Terr_gm2d','Total_Carb_gm2d']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
+        ## Plot SSY data
         ax2=axes1[x].twinx()
         ax2.yaxis.set_ticks_position('right')
-        ax2.plot(axes1[x].get_xticks(),sed['SSY'],ls='-',marker='s',color='r',label='SSY(tons)')  
+        ax2.plot(axes1[x].get_xticks(),sed['SSY'],ls='-',marker='.',color='r',label='SSY(tons)') 
         ax2.set_ylim(0,250), ax2.xaxis.set_visible(False),ax2.yaxis.set_visible(False)
+        ## Plot Waves data
+        ax3=axes1[x].twinx()
+        ax3.yaxis.set_ticks_position('right')
+        ax3.plot(axes1[x].get_xticks(),sed['Waves'],ls='-',marker='.',color='b',label='Waves(MMSWH)') 
+        ax3.set_ylim(0.5,2.5), ax3.xaxis.set_visible(False),ax3.yaxis.set_visible(False)
+        
         if x==2 or x==5 or x==8:
-            ax2.yaxis.set_visible(True), ax2.set_ylabel('SSY (tons)',color='r')
+            ax2.yaxis.set_visible(True), ax2.set_ylabel('SSY(tons)',color='r',fontsize=8)
+            for tl in ax2.get_yticklabels():
+                tl.set_color('r')
+            ax3.yaxis.set_visible(True)
+            ax3.spines['right'].set_position(('axes', 1.2)), ax3.set_ylabel('Waves(MMSWH)',color='b',fontsize=8)
+            for tl in ax3.get_yticklabels():
+                tl.set_color('b')
+                
         ## Format subplot
         axes1[x].xaxis.set_visible(False)
-        axes1[x].tick_params(labelsize=8),ax2.tick_params(labelsize=8)
-        axes1[x].xaxis.grid(False),ax2.yaxis.grid(False)
+        axes1[x].tick_params(labelsize=8),ax2.tick_params(labelsize=8,color='r'),ax3.tick_params(labelsize=8,color='b')
+        axes1[x].xaxis.grid(False),ax2.yaxis.grid(False),ax3.yaxis.grid(False)
         axes1[x].legend().set_visible(False)
         # Subplot title eg P1A
         axes1[x].text(0.05,.95,loc,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes)
@@ -138,12 +145,12 @@ def Sed_Comp_v_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=
     #plt.suptitle('Sediment Accumulation in SedPods over time',fontsize=16)
     plt.tight_layout(pad=0.2)
     fig.legend(handles,labels,'upper center',ncol=5)
-    plt.subplots_adjust(top=0.90)
+    plt.subplots_adjust(top=0.90,right=0.85)
     show_plot(show,fig)
     savefig(save,filename)
     return
-#Sed_Comp_v_SSY_TS(SedPods,max_y=40,plot_health_thresholds=False,show=True,save=True,filename=rawfig+'SedPods-composition v SSY')
-#Sed_Comp_v_SSY_TS(SedTubes,max_y=650,plot_health_thresholds=True,show=True,save=True,filename=rawfig+'SedTubes-composition v SSY')
+Sed_Comp_v_SSY_TS(SedPods,max_y=40,plot_health_thresholds=False,show=True,save=True,filename=figdir+'Sedimentation Time Series/SedPods-composition v SSY Waves')
+Sed_Comp_v_SSY_TS(SedTubes,max_y=650,plot_health_thresholds=True,show=True,save=True,filename=figdir+'Sedimentation Time Series/SedTubes-composition v SSY Waves')
 
 #### Plot each SedPod/SedTube over time
 def Sed_Comp_Terr_v_Precip_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=False,filename=''):    
@@ -165,19 +172,19 @@ def Sed_Comp_Terr_v_Precip_TS(data,max_y=40,plot_health_thresholds=False,show=Tr
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
         ## calculate weight of terrigenous sed
-        data_to_plot['Total Org(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%organic)']/100
-        data_to_plot['Total Terr(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
+        data_to_plot['Total_Org_gm2d'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%organic)']/100
+        data_to_plot['Total_Terr_gm2d'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
 
         ## Select the points with NA values and replace with the ylim, plot all as grey
-        data_to_plot.replace('NaN',max_y)['Total Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
+        data_to_plot.replace('NaN',max_y)['Total_Terr_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
         
         ## Plot the total gm2d, then if the composition data is NA it will just plot the total
         #data_to_plot['Total(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label='Total(no comp.)')
         
         ## create dataframe of sed and precip
-        sed = pd.DataFrame({'Total Org(gm2d)':data_to_plot['Total Org(gm2d)'].values,'Total Terr(gm2d)':data_to_plot['Total Terr(gm2d)'].values,'Precip':data_to_plot['Precip'].values}, index=data_to_plot['Month'].values)
+        sed = pd.DataFrame({'Total_Org_gm2d':data_to_plot['Total_Org_gm2d'].values,'Total_Terr_gm2d':data_to_plot['Total_Terr_gm2d'].values,'Precip':data_to_plot['Precip'].values}, index=data_to_plot['Month'].values)
         ## Plot data values in color over the grey
-        sed[['Total Org(gm2d)','Total Terr(gm2d)']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
+        sed[['Total_Org_gm2d','Total_Terr_gm2d']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
         ## Plot precip data
         ax2=axes1[x].twinx()
         ax2.yaxis.set_ticks_position('right')
@@ -218,7 +225,8 @@ def Sed_Comp_Terr_v_SSY_TS(data,comp='Total',max_y=40,plot_health_thresholds=Fal
     labels=['organic','terrigenous','No Data']
     colors=['green','red','grey']
     bars=[axes[0,2].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]
-    lines= axes[0,2].plot(0,0,color='b',marker='s',label='Precip(mm)')
+    lines= axes[0,2].plot(0,0,color='r',marker='s',label='SSY(tons)')
+    lines= axes[0,2].plot(0,0,color='b',marker='s',label='Waves(MMSWH)')
     handles, labels = axes[0,2].get_legend_handles_labels()
     ## Plot Sed data
     for x, loc in enumerate(np.sort(data['Pod(P)/Tube(T)'].value_counts().index.values)):
@@ -231,30 +239,43 @@ def Sed_Comp_Terr_v_SSY_TS(data,comp='Total',max_y=40,plot_health_thresholds=Fal
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
         ## calculate weight of terrigenous sed
-        data_to_plot[comp+' Org(gm2d)'] = data_to_plot[comp+'(gm2d)'] * data_to_plot[comp+'(%organic)']/100
-        data_to_plot[comp+' Terr(gm2d)'] = data_to_plot[comp+'(gm2d)'] * data_to_plot[comp+'(%terr)']/100
+        data_to_plot[comp+'_Org_gm2d'] = data_to_plot[comp+'_gm2d'] * data_to_plot[comp+'(%organic)']/100
+        data_to_plot[comp+'_Terr_gm2d'] = data_to_plot[comp+'_gm2d'] * data_to_plot[comp+'(%terr)']/100
 
         ## Select the points with NA values and replace with the ylim, plot all as grey
-        data_to_plot.replace('NaN',max_y)[comp+' Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
+        data_to_plot.replace('NaN',max_y)[comp+'_Terr_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
         
         ## Plot the total gm2d, then if the composition data is NA it will just plot the total
         #data_to_plot[comp+'(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label=comp+'(no comp.)')
         
         ## create dataframe of sed and precip
-        sed = pd.DataFrame({comp+' Org(gm2d)':data_to_plot[comp+' Org(gm2d)'].values,comp+' Terr(gm2d)':data_to_plot[comp+' Terr(gm2d)'].values,'SSY':data_to_plot['SSY'].values}, index=data_to_plot['Month'].values)
+        sed = pd.DataFrame({comp+'_Org_gm2d':data_to_plot[comp+'_Org_gm2d'].values,comp+'_Terr_gm2d':data_to_plot[comp+'_Terr_gm2d'].values,'SSY':data_to_plot['SSY'].values,'Waves':data_to_plot['Waves'].values}, index=data_to_plot['Month'].values)
         ## Plot data values in color over the grey
-        sed[[comp+' Org(gm2d)',comp+' Terr(gm2d)']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
-        ## Plot precip data
+        sed[[comp+'_Org_gm2d',comp+'_Terr_gm2d']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
+        ## Plot SSY data
         ax2=axes1[x].twinx()
         ax2.yaxis.set_ticks_position('right')
-        ax2.plot(axes1[x].get_xticks(),sed['SSY'],ls='-',marker='s',color='r',label='SSY(tons)')  
+        ax2.plot(axes1[x].get_xticks(),sed['SSY'],ls='-',marker='.',color='r',label='SSY(tons)') 
         ax2.set_ylim(0,250), ax2.xaxis.set_visible(False),ax2.yaxis.set_visible(False)
+        ## Plot Waves data
+        ax3=axes1[x].twinx()
+        ax3.yaxis.set_ticks_position('right')
+        ax3.plot(axes1[x].get_xticks(),sed['Waves'],ls='-',marker='.',color='b',label='Waves(MMSWH)') 
+        ax3.set_ylim(0.5,2.5), ax3.xaxis.set_visible(False),ax3.yaxis.set_visible(False)
+        
         if x==2 or x==5 or x==8:
-            ax2.yaxis.set_visible(True), ax2.set_ylabel('SSY(tons)')
+            ax2.yaxis.set_visible(True), ax2.set_ylabel('SSY(tons)',color='r')
+            for tl in ax2.get_yticklabels():
+                tl.set_color('r')
+            ax3.yaxis.set_visible(True), ax3.set_ylabel('Waves(MMSWH)',color='b')
+            ax3.spines['right'].set_position(('axes', 1.2))
+            for tl in ax3.get_yticklabels():
+                tl.set_color('b')
+                
         ## Format subplot
         axes1[x].xaxis.set_visible(False)
-        axes1[x].tick_params(labelsize=8),ax2.tick_params(labelsize=8)
-        axes1[x].xaxis.grid(False),ax2.yaxis.grid(False)
+        axes1[x].tick_params(labelsize=8),ax2.tick_params(labelsize=8,color='r'),ax3.tick_params(labelsize=8,color='b')
+        axes1[x].xaxis.grid(False),ax2.yaxis.grid(False),ax3.yaxis.grid(False)
         axes1[x].legend().set_visible(False)
         # Subplot title eg P1A
         axes1[x].text(0.05,.95,loc,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes)
@@ -269,12 +290,12 @@ def Sed_Comp_Terr_v_SSY_TS(data,comp='Total',max_y=40,plot_health_thresholds=Fal
     #plt.suptitle('Sediment Accumulation in SedPods over time',fontsize=16)
     plt.tight_layout(pad=0.2)
     fig.legend(handles,labels,'upper center',ncol=5)
-    plt.subplots_adjust(top=0.90)
+    plt.subplots_adjust(top=0.90,right=0.85)
     show_plot(show,fig)
     savefig(save,filename)
     return
-Sed_Comp_Terr_v_SSY_TS(SedPods,'Fine',max_y=40,plot_health_thresholds=False,show=True,save=True,filename=rawfig+'SedPods-composition and precip')
-Sed_Comp_Terr_v_SSY_TS(SedTubes,'Fine',max_y=650,plot_health_thresholds=True,show=True,save=True,filename=rawfig+'SedTubes-composition and precip')
+#Sed_Comp_Terr_v_SSY_TS(SedPods,'Fine',max_y=40,plot_health_thresholds=False,show=True,save=True,filename=rawfig+'SedPods-composition and precip')
+#Sed_Comp_Terr_v_SSY_TS(SedTubes,'Fine',max_y=650,plot_health_thresholds=True,show=True,save=True,filename=rawfig+'SedTubes-composition and precip')
 
 #### Plot each SedPod/SedTube over time
 def Sed_Comp_Terr_v_Precip_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=False,filename=''):    
@@ -298,19 +319,19 @@ def Sed_Comp_Terr_v_Precip_SSY_TS(data,max_y=40,plot_health_thresholds=False,sho
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
         ## calculate weight of terrigenous sed
-        data_to_plot['Total Org(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%organic)']/100
-        data_to_plot['Total Terr(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
+        data_to_plot['Total_Org_gm2d'] = data_to_plot['Total_gm2d'] * data_to_plot['Total(%organic)']/100
+        data_to_plot['Total_Terr_gm2d'] = data_to_plot['Total_gm2d'] * data_to_plot['Total(%terr)']/100
 
         ## Select the points with NA values and replace with the ylim, plot all as grey
-        data_to_plot.replace('NaN',max_y)['Total Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
+        data_to_plot.replace('NaN',max_y)['Total_Terr_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
         
         ## Plot the total gm2d, then if the composition data is NA it will just plot the total
-        #data_to_plot['Total(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label='Total(no comp.)')
+        #data_to_plot['Total_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label='Total(no comp.)')
         
         ## create dataframe of sed and precip
-        sed = pd.DataFrame({'Total Org(gm2d)':data_to_plot['Total Org(gm2d)'].values,'Total Terr(gm2d)':data_to_plot['Total Terr(gm2d)'].values,'Precip':data_to_plot['Precip'].values, 'SSY':data_to_plot['SSY'].values,'Waves':data_to_plot['Waves'].values}, index=data_to_plot['Month'].values)
+        sed = pd.DataFrame({'Total_Org_gm2d':data_to_plot['Total_Org_gm2d'].values,'Total_Terr_gm2d':data_to_plot['Total_Terr_gm2d'].values,'Precip':data_to_plot['Precip'].values, 'SSY':data_to_plot['SSY'].values,'Waves':data_to_plot['Waves'].values}, index=data_to_plot['Month'].values)
         ## Plot data values in color over the grey
-        sed[['Total Org(gm2d)','Total Terr(gm2d)']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
+        sed[['Total_Org_gm2d','Total_Terr_gm2d']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
         
         ## Plot SSY data
         ax2=axes1[x].twinx()
@@ -381,25 +402,20 @@ def Sed_Comp_Terr_timeseries_single(data,max_y=40,plot_health_thresholds=False,s
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
         ## calculate weight of terrigenous sed
-        data_to_plot['Total Org(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%organic)']/100
-        data_to_plot['Total Terr(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
+        data_to_plot['Total_Org_gm2d'] = data_to_plot['Total_gm2d'] * data_to_plot['Total(%organic)']/100
+        data_to_plot['Total_Terr_gm2d'] = data_to_plot['Total_gm2d'] * data_to_plot['Total(%terr)']/100
 
         ## Select the points with NA values and replace with the ylim, plot all as grey
-        data_to_plot.replace('NaN',max_y)['Total Terr(gm2d)'].plot(ax=ax,color='grey',ls='None',marker='s',label='No Data')
+        data_to_plot.replace('NaN',max_y)['Total_Terr_gm2d'].plot(ax=ax,color='grey',ls='None',marker='s',label='No Data')
         
         ## Plot the total gm2d, then if the composition data is NA it will just plot the total
-        data_to_plot['Total(gm2d)'].plot(ax=ax,color='y',ls='None',marker='s',label='Total(no comp.)')
+        data_to_plot['Total_gm2d'].plot(ax=ax,color='y',ls='None',marker='s',label='Total(no comp.)')
     return
 #Sed_Comp_Terr_timeseries_single(SedTubes,max_y=650,plot_health_thresholds=True,show=True,save=True,filename=rawfig+'SedTubes-composition and precip')
 
 
 
-#### Are Waves and SSY correlated?
-#ssy_and_waves = SedPods[SedPods.index=='P1A'][['SSY','Waves']]
-#ssy_v_waves = sm.OLS(ssy_and_waves['SSY'],ssy_and_waves['Waves']).fit()
-#ssy_v_waves_r2, ssy_v_waves_pval = ssy_v_waves.rsquared_adj, ssy_v_waves.pvalues
-#ssy_v_waves_VIF = 1/(1-ssy_v_waves_r2)
-#
+
 #
 #
 #
@@ -408,8 +424,8 @@ def Sed_Comp_Terr_timeseries_single(data,max_y=40,plot_health_thresholds=False,s
 #    print x, loc
 #    ## Select data corresponding to the site location e.g. P1A, T2B etc
 #    Tube = SedTubes[SedTubes['Pod(P)/Tube(T)'] == loc]
-#    Tube = Tube[['Month','SSY','Waves','Total(gm2d)']]
-#    est = sm.OLS(Tube['Total(gm2d)'],Tube[['SSY','Waves']]).fit()
+#    Tube = Tube[['Month','SSY','Waves','Total_gm2d']]
+#    est = sm.OLS(Tube['Total_gm2d'],Tube[['SSY','Waves']]).fit()
 #
 #    r2_adj = est.rsquared_adj
 #    pvals = est.pvalues

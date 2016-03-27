@@ -150,6 +150,17 @@ for sheet in Comp_XL.sheet_names[1:12]:
     # SedTubes
     SedTubes = SedTubes.append(Tubes)
     #SedTubes = SedTubes[col_names]
+    
+#### Are Waves and SSY correlated?
+#ssy_and_waves = SedPods[SedPods.index=='P1A'][['SSY','Waves']]
+#ssy_and_waves.plot('SSY','Waves',ls='none',marker='.')
+#ssy_v_waves = smf.ols(formula="SSY ~ Waves", data=ssy_and_waves).fit()
+#ssy_v_waves_r2, ssy_v_waves_pval = ssy_v_waves.rsquared_adj, ssy_v_waves.pvalues
+#print "r_square: "+"%.3f"%ssy_v_waves_r2
+#print "P_val: "+"%.3f"%ssy_v_waves_pval['Waves']
+#ssy_v_waves_VIF = 1/(1-ssy_v_waves_r2)
+#print "VIF: "+"%.3f"%ssy_v_waves_VIF
+
 
 def pval_aster(pval):
     #print pval
@@ -179,7 +190,7 @@ def pval_aster(pval):
 
 #### Plot each SedPod vs SSY
 def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_thresholds=False,show=True,save=False,filename=''):  
-    plt.ioff()
+    #plt.ioff()
     cols =data['Pod(P)/Tube(T)'].value_counts().shape[0]
 
     north_reef = ['1A','1B','1C','2A','2C']
@@ -223,16 +234,21 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_threshold
             SSY_spear_r = '%.3f'%SSY_spear[0]
         elif SSY_spear[1] >= 0.10:
             SSY_spear_r = ''
+        #SSY_spear_r = '%.3f'%SSY_spear[0]+'p:'+'%.3f'%SSY_spear[1]                
+        
         Waves_spear = spearman_r(reg_loc[sed_acc], reg_loc['Waves'])
         if Waves_spear[1] < 0.10:
             Waves_spear_r = '%.3f'%Waves_spear[0]
         elif Waves_spear[1] >= 0.10:
             Waves_spear_r = ''
+        #Waves_spear_r = '%.3f'%Waves_spear[0]+'p:'+'%.3f'%Waves_spear[1]
+        
         ## Make table of model parameters
         reg_mod_table = pd.DataFrame({'Sed':sed_acc, 'r2adj':'%.2f'%reg_mod.rsquared_adj,'SSY_spear_r':SSY_spear_r,'SSY_beta':SSY_beta,'SSY_pval':SSY_pval[:5],'Waves_spear_r':Waves_spear_r,'Waves_beta':Waves_beta,'Waves_pval':Waves_pval[:5]},index=[loc])
         reg_table = reg_table.append(reg_mod_table)
         
         ## PLOTS
+        max_y = reg_loc[sed_acc].max()
         axes1=axes.reshape(-1)
         ## Plot SSY vs Sed_Acc
         reg_loc.plot(x='SSY',y=sed_acc,ax=axes1[x],color='r',ls='None',marker='o',fillstyle='none')
@@ -240,7 +256,7 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_threshold
         ## Plot Waves vs Sed_Acc
         axes2 = axes1[x].twiny()
         reg_loc.plot(x='Waves',y=sed_acc,ax=axes2,color='b',ls='None',marker='s',fillstyle='none')
-        axes2.set_xlim(0,2.5), axes2.set_ylim(0,max_y)
+        axes2.set_xlim(0.5,2.5), axes2.set_ylim(0,max_y)
         
         ## Figure/Plots of residuals vs predicted value
         axes1_resid = axes_resid.reshape(-1)        
@@ -333,15 +349,20 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_threshold
         Waves_pval_col = pval_aster(reg_mod.pvalues['Waves'])[1]
         ## Spearman
         SSY_spear = spearman_r(reg_loc[sed_acc], reg_loc['SSY'])
+        
         if SSY_spear[1] < 0.10:
             SSY_spear_r = '%.3f'%SSY_spear[0]
         elif SSY_spear[1] >= 0.10:
             SSY_spear_r = ''
+        #SSY_spear_r = '%.3f'%SSY_spear[0]+'p:'+'%.3f'%SSY_spear[1]    
+        
         Waves_spear = spearman_r(reg_loc[sed_acc], reg_loc['Waves'])
         if Waves_spear[1] < 0.10:
             Waves_spear_r = '%.3f'%Waves_spear[0]
         elif Waves_spear[1] >= 0.10:
             Waves_spear_r = ''
+            
+        #Waves_spear_r = '%.3f'%Waves_spear[0]+'p:'+'%.3f'%Waves_spear[1]  
         
         reg_mod_table = pd.DataFrame({'Sed':sed_acc, 'r2adj':'%.2f'%reg_mod.rsquared_adj,'SSY_spear_r':SSY_spear_r,'SSY_beta':SSY_beta,'SSY_pval':SSY_pval[:5],'Waves_spear_r':Waves_spear_r,'Waves_beta':Waves_beta,'Waves_pval':Waves_pval[:5]},index=[data.index[0]])
         reg_table = reg_table.append(reg_mod_table)
@@ -369,18 +390,22 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_threshold
 
 ### Compile all regression models
 ## Plot and save all of them, but don't display them
-Regressions = pd.DataFrame()
+
+
+def compile_regressions(comps):
+    Regressions = pd.DataFrame()
+
+    for comp in comps:
+        Regressions = Regressions.append(SedAcc_vs_SSY_Waves(SedPods,comp,max_y=25,plot_health_thresholds=False,show=False,save=True,filename=rawfig+'Regressions_Pods/'+comp.replace(" ", "")) )
+        Regressions = Regressions.append(SedAcc_vs_SSY_Waves(SedTubes,comp,max_y=400,plot_health_thresholds=False,show=False,save=True,filename=rawfig+'Regressions_Tubes/'+comp.replace(" ", "")) )
+        plt.close('all')
+    Regressions = Regressions[['Sed','SSY_spear_r','SSY_beta','Waves_spear_r','Waves_beta','SSY_pval','Waves_pval','r2adj']]
+    # Save to csv
+    Regressions.to_csv(datadir+'Regressions.csv')
+    return Regressions
 comps = ['Total_gm2d', 'Total_Terr_gm2d', 'Total_TerrOrg_gm2d', 'Total_Carb_gm2d']
-comps = ['Fine_gm2d', 'Fine_Terr_gm2d', 'Fine_TerrOrg_gm2d', 'Fine_Carb_gm2d']
-for comp in comps:
-    Regressions = Regressions.append(SedAcc_vs_SSY_Waves(SedPods,comp,max_y=25,plot_health_thresholds=False,show=False,save=True,filename=rawfig+'Regressions_Pods/'+comp.replace(" ", "")) )
-    Regressions = Regressions.append(SedAcc_vs_SSY_Waves(SedTubes,comp,max_y=600,plot_health_thresholds=False,show=False,save=True,filename=rawfig+'Regressions_Tubes/'+comp.replace(" ", "")) )
-    plt.close('all')
-Regressions = Regressions[['Sed','SSY_spear_r','SSY_beta','Waves_spear_r','Waves_beta','SSY_pval','Waves_pval','r2adj']]
-
-## Save to csv
-#Regressions.to_csv(datadir+'Regressions.csv')
-
+#comps = ['Fine_gm2d', 'Fine_Terr_gm2d', 'Fine_TerrOrg_gm2d', 'Fine_Carb_gm2d']
+#Regressions = compile_regressions(comps)
 
 ### Significant SSY
 #Regressions[Regressions['SSY_pval'].astype(np.float)<0.10]
@@ -389,7 +414,7 @@ Regressions = Regressions[['Sed','SSY_spear_r','SSY_beta','Waves_spear_r','Waves
 ### Both SSY and Waves
 #Regressions[Regressions['r2adj'].astype(np.float)<0.10]
 
-def summary_table_DFs():
+def summary_table_DFs(comps):
     ## Make summary table of Pvalues
     pval_summary_table = pd.DataFrame()
     for x, loc in enumerate(Regressions.index.unique()):
@@ -443,7 +468,7 @@ def summary_table_DFs():
         spear_summary_table = spear_summary_table.append(pd.DataFrame({comps[0]:total,comps[1]:total_terr, comps[2]:total_terr_org, comps[3]:total_carb},index=[loc]))
     return pval_summary_table[[comps[0],comps[1],comps[2],comps[3]]], spear_summary_table[[comps[0],comps[1],comps[2],comps[3]]]
     
-pval_summary_table, spear_summary_table = summary_table_DFs() 
+#pval_summary_table, spear_summary_table = summary_table_DFs(comps) 
     
     
 ## Call R modules
@@ -457,12 +482,12 @@ ro.r('x[1]="lets talk to R"')
 print(ro.r('x'))
 
 ### Summary Table to htmlTables
-def summary_table_R(summary_table, caption, browser=True):
+def summary_table_R(summary_table, caption, table_num, browser=True):
 
     ## convert to R Data Frame
     table_df = com.convert_to_r_dataframe(summary_table)
     #caption="Significant p values for Waves; SSY."
-    table_num=1
+    #table_num=1
     ## Send to R
     ro.globalenv['table_df_vals'] = table_df
     ## format #s
@@ -496,14 +521,9 @@ def summary_table_R(summary_table, caption, browser=True):
     ## output to file through pandoc
     #pypandoc.convert(htmlcode, 'markdown', format='markdown', outputfile= datadir+'landcover.html')
     return 
-summary_table_R(pval_summary_table, "P-values", browser=True)
-summary_table_R(spear_summary_table, "Spearman correlation coefficients", browser=True)
-
-
-
-
-
-
+#comps = ['Total', 'Terrigenous', 'Terrigenous+Organic', 'Carbonate']
+#summary_table_R(spear_summary_table, "Spearman correlation coefficients (p<0.1) for Sedimentation vs. SSY (ssy:), and Sedimentation vs. Waves (w:). ", "2", browser=True)
+#summary_table_R(pval_summary_table, "Significant P-values for multiple regression of Sedimentation ~ SSY + Waves. ***=p<0.001, **=p<0.01, *=p<0.05, +=p<0.1.", "3", browser=True)
 
 
 #### Plot each SedPod vs Precip

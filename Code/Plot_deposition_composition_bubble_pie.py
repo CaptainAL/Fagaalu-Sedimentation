@@ -90,7 +90,7 @@ def Map_composition_single(SedData,month,show=True,save=False,filename=''):
         #print X,Y
         ## Labels
         plt.text(X-50,Y+30,str(d[0]),color='w',fontsize=10)
-        plt.text(X,Y-50,str("%.1f"%data['Total(gm2d)'])+'(g)',size=8,color='w')
+        plt.text(X,Y-50,str("%.1f"%data['Total_gm2d'])+'(g)',size=8,color='w')
         
         org,carb,terr = data['Total(%organic)'],data['Total(%carb)'],data['Total(%terr)']
         ratios = [org/100.,carb/100.,terr/100.]
@@ -130,6 +130,8 @@ def Map_composition_mean(show=True,save=False,filename=''):
     #plt.ioff()
     ### Make Plot
     fig, (tubes,pods) = plt.subplots(1,2,sharex=False,sharey=False,figsize=(12,5))
+    letter_subplots(fig,0.1,0.95,'top','right','w',font_size=12,font_weight='bold')
+
     
     for ax in fig.axes:
         m = Basemap(projection='merc', resolution='f',
@@ -158,8 +160,8 @@ def Map_composition_mean(show=True,save=False,filename=''):
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data = SedTubes[SedTubes['Pod(P)/Tube(T)'] == loc].dropna()
         ## Composition
-        org,carb,terr = data['Total Org(gm2d)'].mean(),data['Total Carb(gm2d)'].mean(),data['Total Terr(gm2d)'].mean()
-        total_mean = data['Total(gm2d)'].mean()
+        org,carb,terr = data['Total_Org_gm2d'].mean(),data['Total_Carb_gm2d'].mean(),data['Total_Terr_gm2d'].mean()
+        total_mean = data['Total_gm2d'].mean()
         ratios = [org/total_mean,carb/total_mean,terr/total_mean]
         sum_ratios = sum(ratios)
         print '%.2f'%org+' '+'%.2f'%terr+' '+'%.2f'%carb+' = '+'%.2f'%sum_ratios
@@ -186,8 +188,8 @@ def Map_composition_mean(show=True,save=False,filename=''):
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data = SedPods[SedPods['Pod(P)/Tube(T)'] == loc].dropna()
         ## Composition
-        org,carb,terr = data['Total Org(gm2d)'].mean(),data['Total Carb(gm2d)'].mean(),data['Total Terr(gm2d)'].mean()
-        total_mean = data['Total(gm2d)'].mean()
+        org,carb,terr = data['Total_Org_gm2d'].mean(),data['Total_Carb_gm2d'].mean(),data['Total_Terr_gm2d'].mean()
+        total_mean = data['Total_gm2d'].mean()
         ratios = [org/total_mean,carb/total_mean,terr/total_mean]
         sum_ratios = sum(ratios)
         print '%.2f'%org+' '+'%.2f'%terr+' '+'%.2f'%carb+' = '+'%.2f'%sum_ratios

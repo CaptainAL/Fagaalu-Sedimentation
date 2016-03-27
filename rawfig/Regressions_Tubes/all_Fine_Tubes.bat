@@ -1,1 +1,1 @@
-"C:\Program Files\gs\gs9.14\bin\gswin64c.exe" -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -sOutputFile="all_Fine_Tubes.pdf" Fine(gm2d).pdf FineTerr(gm2d).pdf FineTerr+Org(gm2d).pdf FineCarb(gm2d).pdf
+"C:\Program Files\gs\gs9.14\bin\gswin64c.exe" -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -sOutputFile="all_Fine_Tubes.pdf" Fine_gm2d.pdf Fine_Terr_gm2d.pdf Fine_TerrOrg_gm2d.pdf Fine_Carb_gm2d.pdf

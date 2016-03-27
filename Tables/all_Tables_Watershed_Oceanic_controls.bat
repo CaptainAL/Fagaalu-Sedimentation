@@ -1,0 +1,1 @@
+"C:\Program Files\gs\gs9.14\bin\gswin64c.exe" -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -sOutputFile="TABLES-Watershed_and_oceanic_controls_on_sedimentation.pdf" Table1_Deployment_locations.pdf Table2_Spearman_coefficients.pdf Table3_pvalues_of_multiple_regressions.pdf Table4_Comparison_with_Literature.pdf

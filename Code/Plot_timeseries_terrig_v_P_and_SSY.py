@@ -59,13 +59,13 @@ def Terr_Sed_v_Precip_timeseries(data,max_y=40, show=True,save=False,filename=''
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
         ## calculate weight of terrigenous sed
-        data_to_plot['Total Terr(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
+        data_to_plot['Total_Terr_gm2d'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
         ## Select the points with NA values and replace with the ylim, plot all as grey
-        data_to_plot.replace('NaN',max_y)['Total Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.5)
+        data_to_plot.replace('NaN',max_y)['Total_Terr_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.5)
         ## create dataframe of sed and precip
-        sed = pd.DataFrame({'Total Terr(gm2d)':data_to_plot['Total Terr(gm2d)'].values,'Precip':data_to_plot['Precip'].values}, index=data_to_plot['Month'].values)
+        sed = pd.DataFrame({'Total_Terr_gm2d':data_to_plot['Total_Terr_gm2d'].values,'Precip':data_to_plot['Precip'].values}, index=data_to_plot['Month'].values)
         ## Plot data values in color over the grey
-        sed['Total Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='r')
+        sed['Total_Terr_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='r')
         ## Plot precip data
         ax2=axes1[x].twinx()
         ax2.yaxis.set_ticks_position('right')
@@ -105,13 +105,13 @@ def Terr_Sed_v_SSY_timeseries(data,max_y=40, show=True,save=False,filename=''):
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         data_to_plot = data[data['Pod(P)/Tube(T)'] == loc]
         ## calculate weight of terrigenous sed
-        data_to_plot['Total Terr(gm2d)'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
+        data_to_plot['Total_Terr_gm2d'] = data_to_plot['Total(gm2d)'] * data_to_plot['Total(%terr)']/100
         ## Select the points with NA values and replace with the ylim, plot all as grey
-        data_to_plot.replace('NaN',max_y)['Total Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.5)
+        data_to_plot.replace('NaN',max_y)['Total_Terr_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.5)
         ## create dataframe of sed and precip
-        sed = pd.DataFrame({'Total Terr(gm2d)':data_to_plot['Total Terr(gm2d)'].values,'SSY':data_to_plot['SSY'].values}, index=data_to_plot['SSY'].values)
+        sed = pd.DataFrame({'Total_Terr_gm2d':data_to_plot['Total_Terr_gm2d'].values,'SSY':data_to_plot['SSY'].values}, index=data_to_plot['SSY'].values)
         ## Plot data values in color over the grey
-        sed['Total Terr(gm2d)'].plot(kind='bar',stacked=True,ax=axes1[x],color='r')
+        sed['Total_Terr_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='r')
         ## Plot precip data
         ax2=axes1[x].twinx()
         ax2.yaxis.set_ticks_position('right')
@@ -232,6 +232,7 @@ def Total_Sed_v_SSY_timeseries(data,max_y=40, show=True,save=False,filename=''):
 def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):    
     cols =data['Pod(P)/Tube(T)'].value_counts().shape[0]
     fig, axes = plt.subplots(2, 1,sharey=True,figsize=(12,6))
+    letter_subplots(fig,0.1,0.95,'top','right','k',font_size=10,font_weight='bold')
 
     north_reef = ['1A','1B','1C','2A','2C']
     south_reef = ['2B','3A','3B','3C']
@@ -250,14 +251,14 @@ def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):
     for mon in Comp_XL.sheet_names[1:12]:
         ## Select data corresponding to the site location e.g. P1A, T2B etc
         ## Mean organic
-        north_mean_org = north_sed[north_sed['Month'] == mon]['Total Org(gm2d)'].mean()
-        south_mean_org = south_sed[south_sed['Month'] == mon]['Total Org(gm2d)'].mean() 
+        north_mean_org = north_sed[north_sed['Month'] == mon]['Total_Org_gm2d'].mean()
+        south_mean_org = south_sed[south_sed['Month'] == mon]['Total_Org_gm2d'].mean() 
         ## Mean terrigenous
-        north_mean_terr = north_sed[north_sed['Month'] == mon]['Total Terr(gm2d)'].mean()
-        south_mean_terr = south_sed[south_sed['Month'] == mon]['Total Terr(gm2d)'].mean()
+        north_mean_terr = north_sed[north_sed['Month'] == mon]['Total_Terr_gm2d'].mean()
+        south_mean_terr = south_sed[south_sed['Month'] == mon]['Total_Terr_gm2d'].mean()
         ## Mean Carbonate
-        north_mean_carb = north_sed[north_sed['Month'] == mon]['Total Carb(gm2d)'].mean() 
-        south_mean_carb = south_sed[south_sed['Month'] == mon]['Total Carb(gm2d)'].mean()  
+        north_mean_carb = north_sed[north_sed['Month'] == mon]['Total_Carb_gm2d'].mean() 
+        south_mean_carb = south_sed[south_sed['Month'] == mon]['Total_Carb_gm2d'].mean()  
         
         ## Aux Data
         precip = north_sed[north_sed['Month'] == mon]['Precip'].max()
@@ -283,7 +284,7 @@ def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):
         ax3.yaxis.set_ticks_position('right')
         ax3.plot(ax.get_xticks(),sediment_mean_by_month['SSY'],ls='-',color='r',label='SSY(tons)')  
         ax3.set_ylim(0,250)
-        ax3.spines['right'].set_position(('axes', 1.2))
+        ax3.spines['right'].set_position(('axes', 1.1))
         for tl in ax3.get_yticklabels():
             tl.set_color('r')
         ## Plot Wave data
@@ -291,7 +292,7 @@ def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):
         ax4.yaxis.set_ticks_position('right')
         ax4.plot(ax.get_xticks(),sediment_mean_by_month['Waves'],ls='-',color='k',label='MMSWH(m)')  
         ax4.set_ylim(0,2.5)
-        ax4.spines['right'].set_position(('axes', 1.4))
+        ax4.spines['right'].set_position(('axes', 1.2))
         
         ax2.yaxis.set_visible(True), ax2.set_ylabel('Precip(mm)',color='b')
         ax3.yaxis.set_visible(True), ax3.set_ylabel('SSY(tons)',color='r')
@@ -312,5 +313,5 @@ def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):
     show_plot(show,fig)
     savefig(save,filename)
     return
-Sed_timeseries_mean_NS(SedPods,max_y=40,show=True,save=True,filename=figdir+'Mean Accumulation Timeseries/SedPods-monthly mean')
-Sed_timeseries_mean_NS(SedTubes,max_y=650,show=True,save=True,filename=figdir+'Mean Accumulation Timeseries/SedTubes-monthly mean')
+Sed_timeseries_mean_NS(SedPods,max_y=20,show=True,save=True,filename=figdir+'Mean Accumulation Timeseries/SedPods-monthly mean')
+Sed_timeseries_mean_NS(SedTubes,max_y=400,show=True,save=True,filename=figdir+'Mean Accumulation Timeseries/SedTubes-monthly mean')
