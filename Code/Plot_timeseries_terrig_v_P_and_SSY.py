@@ -233,6 +233,13 @@ def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):
     cols =data['Pod(P)/Tube(T)'].value_counts().shape[0]
     fig, axes = plt.subplots(2, 1,sharey=True,figsize=(12,6))
     letter_subplots(fig,0.1,0.95,'top','right','k',font_size=10,font_weight='bold')
+    
+    labels=['organic','terrigenous','carbonate','No Data']
+    colors=['green','red','blue','grey']
+    bars=[axes[0].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]
+    lines= axes[0].plot(0,0,color='k',marker='.',label='SSY(tons)')
+    lines= axes[0].plot(0,0,color='grey',marker='.',label='Hmean(m)')
+    handles, labels = axes[0].get_legend_handles_labels()
 
     north_reef = ['1A','1B','1C','2A','2C']
     south_reef = ['2B','3A','3B','3C']
@@ -272,34 +279,37 @@ def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):
     sediment_mean_by_month[['South org','South terr','South carb']].plot(kind='bar',stacked=True,ax=axes[1],color=['g','r','b'])
     for ax in axes:    
         ## Plot precip data
-        ax2=ax.twinx()
-        ax2.yaxis.set_ticks_position('right')
-        ax2.plot(ax.get_xticks(),sediment_mean_by_month['Precip'],ls='-',color='b')  
-        ax2.set_ylim(0,2000)
-        ax2.xaxis.grid(False), ax2.yaxis.grid(False)
-        for tl in ax2.get_yticklabels():
-            tl.set_color('b')
+        #ax2=ax.twinx()
+        #ax2.yaxis.set_ticks_position('right')
+        #ax2.plot(ax.get_xticks(),sediment_mean_by_month['Precip'],ls='-',color='b')  
+        #ax2.set_ylim(0,2000)
+        #ax2.xaxis.grid(False), ax2.yaxis.grid(False)
+        #for tl in ax2.get_yticklabels():
+            #tl.set_color('b')
         ## Plot SSY data
         ax3=ax.twinx()
         ax3.yaxis.set_ticks_position('right')
-        ax3.plot(ax.get_xticks(),sediment_mean_by_month['SSY'],ls='-',color='r',label='SSY(tons)')  
+        ax3.plot(ax.get_xticks(),sediment_mean_by_month['SSY'],ls='-',linewidth=1.5,color='k',label='SSY(tons)')  
         ax3.set_ylim(0,250)
-        ax3.spines['right'].set_position(('axes', 1.1))
-        for tl in ax3.get_yticklabels():
-            tl.set_color('r')
+        #ax3.spines['right'].set_position(('axes', 1.1))
+        #for tl in ax3.get_yticklabels():
+            #tl.set_color('r')
         ## Plot Wave data
         ax4=ax.twinx()
         ax4.yaxis.set_ticks_position('right')
-        ax4.plot(ax.get_xticks(),sediment_mean_by_month['Waves'],ls='-',color='k',label='MMSWH(m)')  
-        ax4.set_ylim(0,2.5)
-        ax4.spines['right'].set_position(('axes', 1.2))
+        ax4.plot(ax.get_xticks(),sediment_mean_by_month['Waves'],ls='-',linewidth=1.5,color='grey',label='Hmean(m)')  
+        ax4.set_ylim(0.5,2.5)
+        ax4.spines['right'].set_position(('axes', 1.1))
+        #for tl in ax4.get_yticklabels():
+            #tl.set_color('b')
         
-        ax2.yaxis.set_visible(True), ax2.set_ylabel('Precip(mm)',color='b')
-        ax3.yaxis.set_visible(True), ax3.set_ylabel('SSY(tons)',color='r')
-        ax4.yaxis.set_visible(True), ax4.set_ylabel('MMSWH(m)',color='k')
+        #ax2.yaxis.set_visible(True), ax2.set_ylabel('Precip(mm)',color='b')
+        ax3.yaxis.set_visible(True), ax3.set_ylabel('SSY(tons)',color='k')
+        ax4.yaxis.set_visible(True), ax4.set_ylabel('Hmean(m)',color='k')
     
     for ax in axes:
-        ax.legend(fontsize=10)
+        ax.legend().set_visible(False)
+
 
     ## Label left axes
     axes[0].set_ylabel('NORTHERN \n g/'+r'$m^2$'+'/day') 
@@ -309,7 +319,9 @@ def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):
     axes[0].xaxis.grid(False),axes[1].xaxis.grid(False)
     plt.tight_layout(pad=0.2)
 
-    plt.subplots_adjust(top=0.95)
+    fig.legend(handles,labels,'upper center',ncol=3,fontsize=12)
+    plt.subplots_adjust(top=0.85)
+    
     show_plot(show,fig)
     savefig(save,filename)
     return

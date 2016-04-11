@@ -252,11 +252,11 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_threshold
         axes1=axes.reshape(-1)
         ## Plot SSY vs Sed_Acc
         reg_loc.plot(x='SSY',y=sed_acc,ax=axes1[x],color='r',ls='None',marker='o',fillstyle='none')
-        axes1[x].set_xlim(0,250), axes1[x].set_ylim(0,max_y)
+        axes1[x].set_xlim(0,250), axes1[x].set_ylim(0,max_y*1.35)
         ## Plot Waves vs Sed_Acc
         axes2 = axes1[x].twiny()
         reg_loc.plot(x='Waves',y=sed_acc,ax=axes2,color='b',ls='None',marker='s',fillstyle='none')
-        axes2.set_xlim(0.5,2.5), axes2.set_ylim(0,max_y)
+        axes2.set_xlim(0.5,2.5), axes2.set_ylim(0,max_y*1.35)
         
         ## Figure/Plots of residuals vs predicted value
         axes1_resid = axes_resid.reshape(-1)        
@@ -265,7 +265,7 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_threshold
         reg_loc['SSY_resid'] = sed_acc_vs_ssy_mod.resid
         reg_loc['SSY_pred'] = sed_acc_vs_ssy_mod.predict()
         reg_loc.plot(x='SSY_pred',y='SSY_resid',ax=axes1_resid[x],color='k',ls='None',marker='v')
-        axes1_resid[x].set_ylabel('SSY residuals'), axes1_resid[x].set_xlim(0,reg_loc['SSY_pred'].max()*1.1)
+        axes1_resid[x].set_ylabel('SSY residuals'), axes1_resid[x].set_xlim(0,reg_loc['SSY_pred'].max()*1.15)
         axes1_resid[x].grid(False)
         ## Annotate Points
         for row in reg_loc.iterrows():
@@ -279,17 +279,18 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_threshold
         axes1[x].xaxis.set_visible(False), axes2.xaxis.set_visible(False)
         axes1[x].tick_params(labelsize=8), axes2.tick_params(labelsize=8)
         axes1[x].xaxis.grid(False), axes2.xaxis.grid(False)
+        axes1[x].yaxis.grid(False), axes2.yaxis.grid(False)
         axes1[x].legend().set_visible(False), axes2.legend().set_visible(False)
         # Subplot title eg P1A
         axes1[x].text(0.05,.95,loc,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes)
         ## Plot text Pvalues
-        axes1[x].text(0.55,.95,'p_SSY:'+SSY_pval,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes,fontsize=9,color=SSY_pval_col)
-        axes1[x].text(0.55,.90,'p_Wave:'+Waves_pval,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes,fontsize=9,color=Waves_pval_col)        
+        axes1[x].text(0.6,.95,'p_SSY:'+SSY_pval,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes,fontsize=13,color=SSY_pval_col)
+        axes1[x].text(0.6,.85,'p_Wave:'+Waves_pval,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes,fontsize=13,color=Waves_pval_col)        
                 
         if x<=2:
             axes2.xaxis.set_visible(True), axes2.set_xlabel('Waves (m)',color='b')
-            for tl in axes2.get_xticklabels():
-                tl.set_color('b')
+            #for tl in axes2.get_xticklabels():
+                #tl.set_color('b')
                 
     ## Label left axes
     axes[0,0].set_ylabel('NORTHERN \n g/'+r'$m^2$'+'/day')
@@ -303,7 +304,7 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_threshold
         for tl in ax.get_xticklabels():
             tl.set_color('r')
     fig.tight_layout(pad=0.2)
-    fig.subplots_adjust(top=0.9), fig.suptitle(tubes_or_pods+' '+sed_acc,fontsize=16)
+    fig.subplots_adjust(top=0.9)#, fig.suptitle(tubes_or_pods+' '+sed_acc,fontsize=16)
     
     fig_resid.tight_layout(pad=0.2)
     fig_resid.subplots_adjust(top=0.9), fig_resid.suptitle(tubes_or_pods+' '+sed_acc,fontsize=16)
@@ -373,7 +374,7 @@ def SedAcc_vs_SSY_Waves(data,sed_acc='Total_gm2d',max_y=40,plot_health_threshold
 
 ## TOTAL
 #Pods_Total = SedAcc_vs_SSY_Waves(SedPods,'Total_gm2d',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
-#Tubes_Total= SedAcc_vs_SSY_Waves(SedTubes,'Total_gm2d',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  
+Tubes_Total= SedAcc_vs_SSY_Waves(SedTubes,'Total_gm2d',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  
 ## TERR
 #Pods_Terr = SedAcc_vs_SSY_Waves(SedPods,'Total_Terr_gm2d',max_y=40,plot_health_thresholds=False,show=True,save=False,filename='')
 #Tubes_Terr= SedAcc_vs_SSY_Waves(SedTubes,'Total_Terr_gm2d',max_y=600,plot_health_thresholds=False,show=True,save=False,filename='')  

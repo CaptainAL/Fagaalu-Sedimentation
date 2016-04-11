@@ -4,19 +4,33 @@ Created on Tue Jan 12 14:52:51 2016
 
 @author: Alex
 """
+#
+#def plot_coral_health_thresholds(axes1,x):
+#    print 'plot coral health thresholds x:'+str(x)
+#    axes1[x].axhspan(0, 100, facecolor='g',alpha=.75,zorder=1)
+#    axes1[x].axhspan(100, 300, facecolor='y',alpha=.75,zorder=1)
+#    axes1[x].axhspan(300, 500, facecolor='orange',alpha=.75,zorder=1)
+#    axes1[x].axhspan(500, 2000, facecolor='r',alpha=.75,zorder=1)   
+#    ## Label Coral health thresholds
+#    axes1[x].annotate('stress recruits',(4,150),textcoords='data',rotation=0,size=14,color='grey',zorder=2)
+#    axes1[x].annotate('stress colonies',(4,350),textcoords='data',rotation=0,size=14,color='grey',zorder=2)
+#    axes1[x].annotate('lethal',(4,550),textcoords='data',rotation=0,size=14,color='grey',zorder=2)  
+#    plt.draw()
+#    return
 
 def plot_coral_health_thresholds(axes1,x):
     print 'plot coral health thresholds x:'+str(x)
-    axes1[x].axhspan(0, 100, facecolor='g',alpha=.75,zorder=1)
-    axes1[x].axhspan(100, 300, facecolor='y',alpha=.75,zorder=1)
-    axes1[x].axhspan(300, 500, facecolor='orange',alpha=.75,zorder=1)
-    axes1[x].axhspan(500, 2000, facecolor='r',alpha=.75,zorder=1)   
+    axes1[x].axhline(100, ls='--', color='g',alpha=.75,zorder=1)
+    axes1[x].axhline(300, ls='--', color='y',alpha=.75,zorder=1)
+    axes1[x].axhline(500, ls='--', color='r',alpha=.75,zorder=1)
+    #axes1[x].axhline(500, 2000, facecolor='r',alpha=.75,zorder=1)   
     ## Label Coral health thresholds
-    axes1[x].annotate('stress recruits',(4,150),textcoords='data',rotation=0,size=14,color='grey',zorder=2)
-    axes1[x].annotate('stress colonies',(4,350),textcoords='data',rotation=0,size=14,color='grey',zorder=2)
-    axes1[x].annotate('lethal',(4,550),textcoords='data',rotation=0,size=14,color='grey',zorder=2)  
+    #axes1[x].annotate('stress recruits',(4,150),textcoords='data',rotation=0,size=9,color='grey',zorder=2)
+    #axes1[x].annotate('stress colonies',(4,350),textcoords='data',rotation=0,size=9,color='grey',zorder=2)
+    #axes1[x].annotate('lethal',(4,550),textcoords='data',rotation=0,size=9,color='grey',zorder=2)  
+    plt.draw()
     return
-
+    
 #### Plot each SedPod/SedTube over time with PRECIP
 def Sed_Comp_v_Precip_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=False,filename=''):    
     cols =data['Pod(P)/Tube(T)'].value_counts().shape[0]
@@ -85,8 +99,8 @@ def Sed_Comp_v_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=
     labels=['organic','terrigenous','carbonate','No Data']
     colors=['green','red','blue','grey']
     bars=[axes[0,2].bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]
-    lines= axes[0,2].plot(0,0,color='r',marker='.',label='SSY(tons)')
-    lines= axes[0,2].plot(0,0,color='b',marker='.',label='Waves(MMSWH)')
+    lines= axes[0,2].plot(0,0,color='k',marker='.',label='SSY(tons)')
+    lines= axes[0,2].plot(0,0,color='grey',marker='.',label='Hmean(m)')
     handles, labels = axes[0,2].get_legend_handles_labels()
     ## Plot Sed data
     for x, loc in enumerate(np.sort(data['Pod(P)/Tube(T)'].value_counts().index.values)):
@@ -101,36 +115,37 @@ def Sed_Comp_v_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=
         ## Select the points with NA values and replace with the ylim, plot all as grey
         data_to_plot.replace('NaN',max_y)['Total_Terr_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='grey',alpha=0.3)
         ## Plot the total gm2d, then if the composition data is NA it will just plot the total
-        data_to_plot['Total_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label='Total(no comp.)')
+        data_to_plot['Total_gm2d'].plot(kind='bar',stacked=True,ax=axes1[x],color='y',alpha=0.5,label='Total(no comp.)',zorder=3)
         
         ## create dataframe of sed accumulation, SSY, and Waves
         sed = pd.DataFrame({'Total_Org_gm2d':data_to_plot['Total_Org_gm2d'].values,'Total_Terr_gm2d':data_to_plot['Total_Terr_gm2d'].values,'SSY':data_to_plot['SSY'].values,'Waves':data_to_plot['Waves'].values,'Total_Carb_gm2d':data_to_plot['Total_Carb_gm2d'].values}, index=data_to_plot['Month'].values)
         ## Plot data values in color over the grey
-        sed[['Total_Org_gm2d','Total_Terr_gm2d','Total_Carb_gm2d']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'])
+        sed[['Total_Org_gm2d','Total_Terr_gm2d','Total_Carb_gm2d']].plot(kind='bar',stacked=True,ax=axes1[x],color=['g','r','b'],zorder=3)
         ## Plot SSY data
         ax2=axes1[x].twinx()
         ax2.yaxis.set_ticks_position('right')
-        ax2.plot(axes1[x].get_xticks(),sed['SSY'],ls='-',marker='.',color='r',label='SSY(tons)') 
+        ax2.plot(axes1[x].get_xticks(),sed['SSY'],ls='-',marker='.',color='k',label='SSY(tons)') 
         ax2.set_ylim(0,250), ax2.xaxis.set_visible(False),ax2.yaxis.set_visible(False)
         ## Plot Waves data
         ax3=axes1[x].twinx()
         ax3.yaxis.set_ticks_position('right')
-        ax3.plot(axes1[x].get_xticks(),sed['Waves'],ls='-',marker='.',color='b',label='Waves(MMSWH)') 
+        ax3.plot(axes1[x].get_xticks(),sed['Waves'],ls='-',marker='.',color='grey',label='Hmean(m)') 
         ax3.set_ylim(0.5,2.5), ax3.xaxis.set_visible(False),ax3.yaxis.set_visible(False)
         
         if x==2 or x==5 or x==8:
-            ax2.yaxis.set_visible(True), ax2.set_ylabel('SSY(tons)',color='r',fontsize=8)
-            for tl in ax2.get_yticklabels():
-                tl.set_color('r')
+            ax2.yaxis.set_visible(True), ax2.set_ylabel('SSY(tons)',color='k',fontsize=8)
+            #for tl in ax2.get_yticklabels():
+                #tl.set_color('r')
             ax3.yaxis.set_visible(True)
-            ax3.spines['right'].set_position(('axes', 1.2)), ax3.set_ylabel('Waves(MMSWH)',color='b',fontsize=8)
-            for tl in ax3.get_yticklabels():
-                tl.set_color('b')
+            ax3.spines['right'].set_position(('axes', 1.2)), ax3.set_ylabel('Hmean(m)',color='k',fontsize=8)
+            #for tl in ax3.get_yticklabels():
+                #tl.set_color('b')
                 
         ## Format subplot
         axes1[x].xaxis.set_visible(False)
-        axes1[x].tick_params(labelsize=8),ax2.tick_params(labelsize=8,color='r'),ax3.tick_params(labelsize=8,color='b')
-        axes1[x].xaxis.grid(False),ax2.yaxis.grid(False),ax3.yaxis.grid(False)
+        axes1[x].tick_params(labelsize=8),ax2.tick_params(labelsize=8,color='k'),ax3.tick_params(labelsize=8,color='k')
+        axes1[x].xaxis.grid(False), axes1[x].yaxis.grid(False)
+        ax2.yaxis.grid(False),ax3.yaxis.grid(False)
         axes1[x].legend().set_visible(False)
         # Subplot title eg P1A
         axes1[x].text(0.05,.95,loc,verticalalignment='top', horizontalalignment='left',transform=axes1[x].transAxes)
@@ -144,7 +159,7 @@ def Sed_Comp_v_SSY_TS(data,max_y=40,plot_health_thresholds=False,show=True,save=
     axes[2,0].set_xticklabels(data_to_plot['Month'].values)
     #plt.suptitle('Sediment Accumulation in SedPods over time',fontsize=16)
     plt.tight_layout(pad=0.2)
-    fig.legend(handles,labels,'upper center',ncol=5)
+    fig.legend(handles,labels,'upper center',ncol=3)
     plt.subplots_adjust(top=0.90,right=0.85)
     show_plot(show,fig)
     savefig(save,filename)

@@ -151,8 +151,8 @@ def Map_composition_mean(show=True,save=False,filename=''):
         labels=['%Organic','%Carbonate','%Terrigenous']
         colors=['g','b','r']
         [ax.bar(0,0,color=c,label=l) for c,l in zip(colors,labels)]  
-    tubes.legend(loc='upper right', title='SedTubes',fontsize=10)       
-    pods.legend(loc='upper right',title='SedPods',fontsize=10) 
+    tubes.legend(loc='upper right', title='Traps',fontsize=10)       
+    pods.legend(loc='upper right',title='Pods',fontsize=10) 
     
     ## SEDTUBES
     for x, loc in enumerate(np.sort(SedTubes['Pod(P)/Tube(T)'].value_counts().index.values)):
