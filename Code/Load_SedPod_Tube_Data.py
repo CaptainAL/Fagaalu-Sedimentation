@@ -4,10 +4,16 @@ Created on Tue Jan 12 14:51:35 2016
 
 @author: Alex
 """
+from matplotlib import pyplot as plt
 import pandas as pd
+import numpy as np
 from scipy.stats import spearmanr as spearman_r
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+
+plt.ion()
+
+
 
 ## Set Pandas display options
 pd.set_option('display.large_repr', 'truncate')
@@ -16,7 +22,7 @@ pd.set_option('display.max_rows', 30)
 pd.set_option('display.max_columns', 13)
 
 
-def show_plot(show=False,fig=figure):
+def show_plot(show=False,fig=plt.figure):
     if show==True:
         plt.show()
 def savefig(fig,save=True,filename=''):
@@ -27,7 +33,7 @@ def savefig(fig,save=True,filename=''):
     
     
 ## Set Directories
-maindir = 'C:/Users/Alex/Documents/GitHub/Fagaalu-Sedimentation/'
+maindir = 'C:/Users/atm19/Documents/GitHub/Fagaalu-Sedimentation/'
 datadir = maindir+'Data/'
 watersheddir  = datadir+'Fagaalu_watershed/'
 wavedir = datadir+'WW3_data/'
