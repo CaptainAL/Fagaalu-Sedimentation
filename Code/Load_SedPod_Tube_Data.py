@@ -4,14 +4,18 @@ Created on Tue Jan 12 14:51:35 2016
 
 @author: Alex
 """
+import matplotlib as mpl
+#mpl.use('Qt4Agg')
 from matplotlib import pyplot as plt
+
 import pandas as pd
 import numpy as np
 from scipy.stats import spearmanr as spearman_r
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-plt.ion()
+#plt.ion()
+
 
 
 
@@ -412,7 +416,7 @@ def compile_regressions(comps):
     return Regressions
 comps = ['Total_gm2d', 'Total_Terr_gm2d', 'Total_TerrOrg_gm2d', 'Total_Carb_gm2d']
 #comps = ['Fine_gm2d', 'Fine_Terr_gm2d', 'Fine_TerrOrg_gm2d', 'Fine_Carb_gm2d']
-#Regressions = compile_regressions(comps)
+Regressions = compile_regressions(comps)
 
 ### Significant SSY
 #Regressions[Regressions['SSY_pval'].astype(np.float)<0.10]
@@ -434,10 +438,14 @@ def summary_table_DFs(comps):
             pval_wave = pval_aster(reg.ix['Waves_pval'][name])[0]
             if pval_wave != '':
                 pval_wave = 'w'+'<sup>'+ pval_wave+'</sup>'
+            else:
+                pval_wave = ''
                 
             pval_ssy = pval_aster(reg.ix['SSY_pval'][name])[0] 
             if pval_ssy != '':
                 pval_ssy = ' ssy'+'<sup>'+pval_ssy +'</sup>'
+            else:
+                pval_ssy=''
             pvals = pval_wave + pval_ssy
             return pvals
             
@@ -475,7 +483,7 @@ def summary_table_DFs(comps):
         spear_summary_table = spear_summary_table.append(pd.DataFrame({comps[0]:total,comps[1]:total_terr, comps[2]:total_terr_org, comps[3]:total_carb},index=[loc]))
     return pval_summary_table[[comps[0],comps[1],comps[2],comps[3]]], spear_summary_table[[comps[0],comps[1],comps[2],comps[3]]]
     
-#pval_summary_table, spear_summary_table = summary_table_DFs(comps) 
+pval_summary_table, spear_summary_table = summary_table_DFs(comps) 
     
     
 ## Call R modules
@@ -528,9 +536,9 @@ def summary_table_R(summary_table, caption, table_num, browser=True):
     ## output to file through pandoc
     #pypandoc.convert(htmlcode, 'markdown', format='markdown', outputfile= datadir+'landcover.html')
     return 
-#comps = ['Total', 'Terrigenous', 'Terrigenous+Organic', 'Carbonate']
+comps = ['Total', 'Terrigenous', 'Terrigenous+Organic', 'Carbonate']
 #summary_table_R(spear_summary_table, "Spearman correlation coefficients (p<0.1) for Sedimentation vs. SSY (ssy:), and Sedimentation vs. Waves (w:). ", "2", browser=True)
-#summary_table_R(pval_summary_table, "Significant P-values for multiple regression of Sedimentation ~ SSY + Waves. ***=p<0.001, **=p<0.01, *=p<0.05, +=p<0.1.", "3", browser=True)
+summary_table_R(pval_summary_table, "Significant P-values for multiple regression of Sedimentation ~ SSY + Waves. ***=p<0.001, **=p<0.01, *=p<0.05, +=p<0.1. Non-significant p-values are left blank.", "3", browser=True)
 
 
 #### Plot each SedPod vs Precip
@@ -784,7 +792,4 @@ def Sed_Time_Series_dots():
         
 
 
-
-
-
-
+    

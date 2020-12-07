@@ -18,13 +18,15 @@ import utm
 import shapefile ## from pyshp
 import datetime as dt
 pd.set_option('display.large_repr', 'info')
+
+
 ## Set Directories
 maindir = 'C:/Users/Alex/Documents/GitHub/Fagaalu-Sedimentation/'
 datadir = maindir+'Data/'
 GISdir = datadir+'GIS/'
 rawfig= maindir+'rawfig/'
 
-def show_plot(show=False,fig=figure):
+def show_plot(show=False,fig=plt.figure):
     if show==True:
         plt.draw()
         plt.show()
@@ -317,6 +319,7 @@ def Sed_timeseries_mean_NS(data,max_y=40, show=True,save=False,filename=''):
     axes[0].set_ylim(0,max_y)
     axes[0].xaxis.set_visible(False)
     axes[0].xaxis.grid(False),axes[1].xaxis.grid(False)
+    axes[0].yaxis.grid(False),axes[1].yaxis.grid(False)
     plt.tight_layout(pad=0.2)
 
     fig.legend(handles,labels,'upper center',ncol=3,fontsize=12)

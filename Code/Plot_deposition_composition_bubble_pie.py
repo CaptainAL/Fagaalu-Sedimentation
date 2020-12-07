@@ -19,7 +19,7 @@ import shapefile ## from pyshp
 import datetime as dt
 pd.set_option('display.large_repr', 'info')
 ## Set Directories
-maindir = 'C:/Users/Alex/Documents/GitHub/Fagaalu-Sedimentation/'
+maindir = 'C:/Users/atm19/Documents/GitHub/Fagaalu-Sedimentation/'
 datadir = maindir+'Data/'
 GISdir = datadir+'GIS/'
 rawfig= maindir+'rawfig/'
@@ -48,8 +48,82 @@ def letter_subplots(fig,x=0.1,y=0.95,vertical='top',horizontal='right',Color='k'
     plt.draw()
     return 
 
+def lat2str(deg):
+    min = 60 * (deg - np.floor(deg))
+    deg = np.floor(deg)
+    dir = 'N'
+    if deg < 0:
+        if min != 0.0:
+            deg += 1.0
+            min -= 60.0
+        dir = 'S'
+    return ("%d %g' %s") % (np.abs(deg),np.abs(min),dir) + 'S'
 
+def lon2str(deg):
+    min = 60 * (deg - np.floor(deg))
+    deg = np.floor(deg)
+    dir = 'E'
+    if deg < 0:
+        if min != 0.0:
+            deg += 1.0
+            min -= 60.0
+        dir = 'W'
+    return ("%d\N{DEGREE SIGN} %g' %s") % (np.abs(deg),np.abs(min),dir)
 
+def Lon_decdegree2DMS(value):
+    """
+        Converts a Decimal Degree Value into
+        Degrees Minute Seconds Notation.
+        
+        Pass value as double
+        type = {Latitude or Longitude} as string
+        
+        returns a string as D:M:S:Direction
+        created by: anothergisblog.blogspot.com 
+    """
+    if value > 180:
+        value = 360.-value
+    degrees = int(value)
+    submin = abs( (value - int(value) ) * 60)
+    minutes = int(submin)
+    subseconds = abs((submin-int(submin)) * 60)
+    direction = "W"
+    #if degrees < 0:
+       # direction = "W"
+    #elif degrees > 0:
+       # direction = "E"
+    #else:
+        #direction = ""
+
+    notation = str(degrees) + u"\u00B0" + str(minutes) + "'" +\
+               str(subseconds)[0:2] + '"' + direction
+    return notation
+    
+def Lat_decdegree2DMS(value):
+    """
+        Converts a Decimal Degree Value into
+        Degrees Minute Seconds Notation.
+        
+        Pass value as double
+        type = {Latitude or Longitude} as string
+        
+        returns a string as D:M:S:Direction
+        created by: anothergisblog.blogspot.com 
+    """
+    degrees = int(value)
+    submin = abs( (value - int(value) ) * 60)
+    minutes = int(submin)
+    subseconds = abs((submin-int(submin)) * 60)
+    direction = ""
+    if degrees < 0:
+        direction = "S"
+    elif degrees > 0:
+        direction = "N"
+    else:
+        direction = "" 
+    notation = str(degrees) + u"\u00B0" + str(minutes) + "'" +\
+               str(subseconds)[0:2] + '"' + direction
+    return notation
 
 ##################################################
 ## Map Extents: Local, Island, Region
@@ -68,8 +142,8 @@ def Map_composition_single(SedData,month,show=True,save=False,filename=''):
     m.imshow(background,origin='lower')#,extent=[ll[1],ll[0],ur[1],ur[0]])
     
     #### Show Lat/Lon Grid               
-    #gMap.drawparallels(np.arange(ll[0],ur[0],.001),labels=[1,1,0,0])
-    #gMap.drawmeridians(np.arange(ll[1],ur[1],.001),labels=[0,0,0,1])
+    gMap.drawparallels(np.arange(ll[0],ur[0],.001),labels=[1,1,0,0])
+    gMap.drawmeridians(np.arange(ll[1],ur[1],.001),labels=[0,0,0,1])
     
     #### Display Shapefiles:
     m.readshapefile(GISdir+'fagaalugeo','fagaalugeo') ## Display coastline of watershed
@@ -142,8 +216,11 @@ def Map_composition_mean(show=True,save=False,filename=''):
         m.imshow(background,origin='lower')#,extent=[ll[1],ll[0],ur[1],ur[0]])
         
         #### Show Lat/Lon Grid               
-        #gMap.drawparallels(np.arange(ll[0],ur[0],.001),labels=[1,1,0,0])
-        #gMap.drawmeridians(np.arange(ll[1],ur[1],.001),labels=[0,0,0,1])
+#        m.drawparallels(np.arange(ll[0],ur[0],.003),linewidth=0.5,color='grey',labels=[1,0,0,0],fontsize=8,fmt=Lat_decdegree2DMS,rotation='vertical')
+#        m.drawmeridians(np.arange(ll[1],ur[1],.003),linewidth=0.5,color='grey',labels=[0,0,1,0],fontsize=8,fmt=Lon_decdegree2DMS)
+        
+        m.drawparallels(np.arange(ll[0],ur[0],.003),linewidth=0.5,color='grey',labels=[1,0,0,0],fontsize=8,fmt=Lat_decdegree2DMS,rotation='vertical')
+        m.drawmeridians([-170.6749, -170.6777,-170.6805,-170.6833],linewidth=0.5,color='grey',labels=[0,0,1,0],fontsize=8,fmt=Lon_decdegree2DMS)
         
         #### Display Shapefiles:
         m.readshapefile(GISdir+'fagaalugeo','fagaalugeo') ## Display coastline of watershed
@@ -212,6 +289,7 @@ def Map_composition_mean(show=True,save=False,filename=''):
             
             
     plt.tight_layout()
+    plt.subplots_adjust(wspace=0.1)
     savefig(save,filename)
     if show==True:
             plt.show()
